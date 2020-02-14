@@ -258,14 +258,18 @@ DefaultSearchParamsManager.prototype.drawUpdateUI = function(container, attribut
 
         whereQuery = _this.addGeomQuery(whereQuery);
 
-        var url = window.serverBase + 'VectorLayer/QueryScalar?sql=' +
-            'UPDATE ' + '"' + attributesTable.layerName + '"' +
-            'SET ' +  '"' + _this.currentColumnName + '"' + '=' + updateQuery + (whereQuery ? ('WHERE ' + whereQuery) : "");
+        var url = window.serverBase + 'VectorLayer/QueryScalar';
+            // 'UPDATE ' + '"' + attributesTable.layerName + '"' +
+            // 'SET ' +  '"' + _this.currentColumnName + '"' + '=' + updateQuery + (whereQuery ? ('WHERE ' + whereQuery) : "");
+        
+        var sql = encodeURIComponent ('UPDATE "' + attributesTable.layerName + '" SET "' + _this.currentColumnName + '" = ' + updateQuery + (whereQuery ? ('WHERE ' + whereQuery) : ""));
 
         fetch(url, {
              method: 'POST',
              credentials: 'include',
-             mode: 'cors'
+             mode: 'cors',
+             headers: { 'Content-Type': 'application/x-www-form-urlencoded'},
+			 body: 'sql=' + sql
           }).then(toJson)
           .then(resCallback)
           .catch(catchErr);
@@ -277,8 +281,7 @@ DefaultSearchParamsManager.prototype.drawUpdateUI = function(container, attribut
         function resCallback(res) {
             var json;            
 
-            $(spinHolder).hide();
-            res = res.substring(1, res.length-1);
+            $(spinHolder).hide();            
             json = JSON.parse(res);            
 
             if (json.Status === 'error') {

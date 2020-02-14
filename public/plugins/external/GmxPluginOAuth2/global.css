@@ -1,0 +1,248 @@
+.domrf-plugin-container {
+    background: #FFFFFF;
+    border-right: 1px solid lightgray;
+}
+.domrf-plugin-container .hidden,
+.domrf-plugin-container .sidebar-opened .row.hidden:before {
+	display: none;
+}
+
+.domrf-plugin-container a {
+	font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+	font-size: 15px;
+	text-decoration-line: none;
+	font-weight: 500;
+}
+
+
+.domrf-plugin-container .currDrawingObjArea {
+    background-color: lightgreen;
+}
+
+.domrf-plugin-container .nav {
+	display: -webkit-box;
+	display: -webkit-flex;
+	display: -ms-flexbox;
+	display: flex;
+	padding-left: 0;
+	margin-bottom: 0;
+	list-style: none
+}
+
+.domrf-plugin-container .nav-link {
+	display: block;
+	padding: .5em 1em
+}
+
+.domrf-plugin-container .nav-link:focus,
+.domrf-plugin-container .nav-link:hover {
+	text-decoration: none
+}
+
+.domrf-plugin-container .nav-link.disabled {
+	color: #636c72;
+	cursor: not-allowed
+}
+
+.domrf-plugin-container .nav-tabs {
+	border-bottom: 1px solid #ddd
+}
+
+.domrf-plugin-container .nav-tabs .nav-item {
+	/*margin-bottom: -1px;*/
+	width: 100%;
+    font-weight: 500;
+    text-align: center;
+    background: #F3F7FA;
+    border-left: 1px solid lightgray;
+}
+
+.domrf-plugin-container .nav-tabs .nav-link.disabled {
+	color: #636c72;
+	background-color: transparent;
+	border-color: transparent
+}
+
+.domrf-plugin-container .nav-tabs .nav-item.show .nav-link,
+.domrf-plugin-container .nav-tabs .nav-link.active {
+	color: #02A97A;
+	background-color: rgba(2, 169, 122, 0.1);
+	border-bottom: 4px solid #02A97A;
+}
+
+.domrf-plugin-container .nav-tabs .dropdown-menu {
+	margin-top: -1px;
+	border-top-right-radius: 0;
+	border-top-left-radius: 0
+}
+
+.domrf-plugin-container a.nav-link {
+    color: #394B59;
+	text-decoration: none;
+}
+
+.domrf-plugin-container .currDrawingObjArea {
+    margin-left: 6px;
+    padding: 4px;
+    border-radius: 6px;
+}
+
+@import url('https://fonts.googleapis.com/css?family=IBM+Plex+Sans');
+
+body {
+	font-family: 'IBM Plex Sans', sans-serif;
+}
+
+.domrf-plugin-container .sidebar-opened {
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+.domrf-plugin-container .row {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    min-height: 60px;
+    flex-wrap: wrap;
+    padding: 0 15px 15px 15px;
+}
+
+
+.domrf-plugin-container .title {
+    font-style: normal;
+    font-weight: 600;
+    font-size: 12px;
+    line-height: normal;
+    color: #8A9BA8;
+	font-family: 'IBM Plex Sans', sans-serif;
+}
+.domrf-plugin-container input[type="text"],
+.domrf-plugin-container select {
+    width: 100%;
+    text-align: right;
+    background: transparent;
+    border: 1px solid #D8E1E8;
+    box-sizing: border-box;
+    border-radius: 5px;
+    height: 30px;
+    font-family: IBM Plex Sans;
+    font-style: italic;
+    font-weight: normal;
+    font-size: 14px;
+    line-height: normal;
+    padding: 0 10px;
+    color: #777;
+}
+
+.domrf-plugin-container select::-webkit-input-placeholder,
+.domrf-plugin-container select::-moz-placeholder,
+.domrf-plugin-container select:-ms-input-placeholder {
+	font-style: italic;
+	font-weight: normal;
+	font-size: 12px;
+	line-height: normal;
+	color: #BFCCD6;
+	font-family: 'IBM Plex Sans', sans-serif;
+}
+/*
+.domrf-plugin-container select::-moz-placeholder {
+	font-style: italic;
+	font-weight: normal;
+	font-size: 12px;
+	line-height: normal;
+	color: #BFCCD6;
+	font-family: 'IBM Plex Sans', sans-serif;
+}
+
+.domrf-plugin-container select:-moz-placeholder {
+	font-style: italic;
+	font-weight: normal;
+	font-size: 12px;
+	line-height: normal;
+	color: #BFCCD6;
+	font-family: 'IBM Plex Sans', sans-serif;
+}
+
+.domrf-plugin-container select:-ms-input-placeholder {
+	font-style: italic;
+	font-weight: normal;
+	font-size: 12px;
+	line-height: normal;
+	color: #BFCCD6;
+	font-family: 'IBM Plex Sans', sans-serif;
+}
+
+.domrf-plugin-container select {
+    width: 100%;
+    text-align: right;
+    background: transparent;
+    border: 1px solid #D8E1E8;
+    box-sizing: border-box;
+    border-radius: 5px;
+    height: 30px;
+    font-family: IBM Plex Sans;
+    font-style: italic;
+    font-weight: normal;
+	font-size: 14px;
+    line-height: normal;
+    padding: 0 10px;
+    color: #777;
+}
+
+*/
+
+.domrf-plugin-container .checkbox {
+    display: inline-flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.domrf-plugin-container label.css-label2.radGroup1 {
+    font-style: normal;
+    font-weight: 600;
+    font-size: 12px;
+    line-height: normal;
+    color: #8A9BA8;
+    font-family: 'IBM Plex Sans', sans-serif;
+    display: block;
+    margin-left: 5px;
+}
+
+.domrf-plugin-container button.button {
+    width: 90%;
+    position: relative;
+    left: 17px;
+    height: 30px;
+    padding: 0;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 12px;
+    line-height: normal;
+    color: #8A9BA8;
+    font-family: 'IBM Plex Sans', sans-serif;
+    display: block;
+    background: #FFF;
+    border: 1px solid;
+    border-radius: 3px;
+    cursor: pointer;
+	margin-bottom: 17px;
+}
+
+.domrf-plugin-container .sidebar-opened .row:nth-child(1):before {
+    content: url(https://img.icons8.com/material/24/000000/reboot.png);
+    width: 24px;
+    height: 24px;
+    position: absolute;
+    right: 18px;
+    top: 45px;
+    opacity: 0.44;
+    -webkit-animation: spin 4s linear infinite;
+    -moz-animation: spin 4s linear infinite;
+    animation: spin 2s linear infinite;
+}
+
+@-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+@-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+
+	

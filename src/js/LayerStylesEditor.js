@@ -1089,7 +1089,7 @@ var swapFilters = function(div, firstNum, filterCanvas)
 var createLoadingFilter = function(layer, styleIndex, parentStyle, geometryType, attrs, elemCanvas, openedFlag)
 {
 	var templateStyle = {},
-		nameInput = _input(null, [['dir','className','inputStyle'],['attr','paramName','Name'],['css','width','210px'],['attr','value', parentStyle.Name || '']]),
+		nameInput = _input(null, [['dir','className','inputStyle'],['attr','paramName','Name'],['css','width','210px'],['attr','value', parentStyle && parentStyle.Name || '']]),
 		ulFilterParams = _ul(),
 		liFilter = _li([_div([nameInput]), ulFilterParams]),
 		ulFilter = _ul([liFilter]),

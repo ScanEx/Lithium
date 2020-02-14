@@ -235,7 +235,7 @@ var LayerProperties = Backbone.Model.extend(
             reqParams.ZIndexField = attrs.ZIndexField || '';
 
             if (!name && stype === 'manual' && !(params && params.copy)) {
-                reqParams.UserBorder = attrs.UserBorder ? JSON.stringify(attrs.UserBorder) : null;
+                reqParams.UserBorder = attrs.UserBorder ? JSON.stringify(attrs.UserBorder) : '';
                 reqParams.geometrytype = attrs.GeometryType;
 
                 def = nsGmx.asyncTaskManager.sendGmxPostRequest(window.serverBase + "VectorLayer/CreateVectorLayer.ashx", reqParams);
@@ -272,6 +272,19 @@ var LayerProperties = Backbone.Model.extend(
                 copyParams.SourceType = attrs.SourceType;
                 copyParams.Sql = sqlString;
                 copyParams.srs = nsGmx.leafletMap.options.srs || '';
+				copyParams.Description = reqParams.Description;
+				copyParams.Copyright = reqParams.Copyright;
+				copyParams.Legend = reqParams.Legend;
+				copyParams.MetaProperties = reqParams.MetaProperties;
+				copyParams.ColX = reqParams.ColX;
+				copyParams.ColY = reqParams.ColY;
+				copyParams.EncodeSource = reqParams.EncodeSource;
+				copyParams.IsRasterCatalog = reqParams.IsRasterCatalog;
+				copyParams.TableCS = reqParams.TableCS;
+				copyParams.NameObject = reqParams.NameObject;
+				copyParams.TemporalLayer = reqParams.TemporalLayer;
+				copyParams.TemporalPeriodsSet = reqParams.TemporalPeriodsSet;
+				copyParams.TemporalColumnName = reqParams.TemporalColumnName;
 
                  def = nsGmx.asyncTaskManager.sendGmxPostRequest(window.serverBase + "VectorLayer/Insert.ashx", copyParams);
             } else {

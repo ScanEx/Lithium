@@ -1,10 +1,14 @@
-(function () {
+(function (leaflet) {
     'use strict';
+
+    leaflet = leaflet && leaflet.hasOwnProperty('default') ? leaflet['default'] : leaflet;
 
     var nsGmx$1 = {};
     window.nsGmx = nsGmx$1;
 
     function _typeof(obj) {
+      "@babel/helpers - typeof";
+
       if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
         _typeof = function (obj) {
           return typeof obj;
@@ -1675,7 +1679,7 @@
 
             xhr.onload = function (response) {
               if (xhr.status === 200) {
-                response = JSON.parse(xhr.responseText.substr(1, xhr.responseText.length - 2));
+                response = JSON.parse(xhr.responseText);
 
                 if (parseResponse(response, errorMessages)) {
                   def.resolve(response.Result);
@@ -2357,6 +2361,7 @@
       "Базовые слои": "Базовые слои",
       "Подключить WMS": "Подключить WMS",
       "Подключить WFS": "Подключить WFS",
+      "Подключить WFS/WMS": "Подключить WFS/WMS",
       "Объекты": "Объекты",
       "Результаты поиска": "Результаты поиска",
       "Буфер": "Буфер",
@@ -2636,6 +2641,7 @@
       "Изменить параметры поиска": "Изменить параметры поиска",
       "$$search$$_1": "Поиск по векторным слоям и адресной базе",
       "$$search$$_2": "Поиск по адресной базе",
+      "Слои": "Слои",
       "Поиск не дал результатов": "Поиск не дал результатов",
       "Очистить": "Очистить",
       "Регистрация": "Регистрация",
@@ -3067,6 +3073,7 @@
       "Базовые слои": "Base layers",
       "Подключить WMS": "Add WMS",
       "Подключить WFS": "Add WFS",
+      "Подключить WFS/WMS": "Add WFS/WMS",
       "Объекты": "User objects",
       "Результаты поиска": "Search results",
       "Буфер": "Buffer",
@@ -3348,6 +3355,7 @@
       "Изменить параметры поиска": "Change search parameters",
       "$$search$$_1": "Search vector layers and address base",
       "$$search$$_2": "Search address base",
+      "Слои": "Layers",
       "Поиск не дал результатов": "There are no search results",
       "Регистрация": "Registration",
       "Восстановление пароля": "Restore password",
@@ -5495,7 +5503,9 @@
         /** Создаёт иконку по описанию стиля слоя и типа геометрии
            */
         createGeometryIcon: function createGeometryIcon(parentStyle, type) {
-          var icon = _div(null, [['css', 'display', 'inline-block'], ['dir', 'className', 'colorIcon'], ['attr', 'styleType', 'color']]);
+          var icon = _div(null, [['css', 'display', 'inline-block'], ['dir', 'className', 'colorIcon'], ['attr', 'styleType', 'color']
+          /*['css','backgroundColor','#FFFFFF']*/
+          ]);
 
           if (window.newStyles) {
             if (type.indexOf('linestring') < 0) {
@@ -6741,7 +6751,7 @@
         };
 
         ulParent.parentNode.parentNode.parentNode.getClusterStyle = function () {
-          return null;
+          return  null;
         };
 
         ulParent.parentNode.parentNode.parentNode.removeColorPickers = function () {
@@ -6819,7 +6829,7 @@
           }
 
           $(filter.firstChild).treeview();
-          attachLoadingFilterEvent(filter, layer, layer.getStyles().length - 1, newStyle, elem.GeometryType.toLowerCase(), elem.attributes, elemCanvas, false);
+          attachLoadingFilterEvent(filter, layer, layer.getStyles().length - 1, newStyle, elem.GeometryType.toLowerCase(), elem.attributes, elemCanvas);
         };
 
         addButton.style.marginLeft = '10px';
@@ -6844,7 +6854,7 @@
 
       var createLoadingFilter = function createLoadingFilter(layer, styleIndex, parentStyle, geometryType, attrs, elemCanvas, openedFlag) {
         var templateStyle = {},
-            nameInput = _input(null, [['dir', 'className', 'inputStyle'], ['attr', 'paramName', 'Name'], ['css', 'width', '210px'], ['attr', 'value', parentStyle.Name || '']]),
+            nameInput = _input(null, [['dir', 'className', 'inputStyle'], ['attr', 'paramName', 'Name'], ['css', 'width', '210px'], ['attr', 'value', parentStyle && parentStyle.Name || '']]),
             ulFilterParams = _ul(),
             liFilter = _li([_div([nameInput]), ulFilterParams]),
             ulFilter = _ul([liFilter]),
@@ -9416,10 +9426,9 @@
       this.layerStylesHash = {};
       this.attrValues = {};
       this.customErrorsHash = {
-        "Unable to locate EXIF content": "Unable to locate EXIF content" // контролирует пользовательские объекты, которые являются редактируемыми контурами растровых слоёв.
-        // все такие объекты не будут сериализоваться
-
-      };
+        "Unable to locate EXIF content": "Unable to locate EXIF content"
+      }; // контролирует пользовательские объекты, которые являются редактируемыми контурами растровых слоёв.
+      // все такие объекты не будут сериализоваться
 
       this.drawingBorders = function () {
         var _borders = {}; //не будем сериализовать все пользовательские объекты, являющиеся контурами слоёв, так как это временные объекты
@@ -10031,12 +10040,12 @@
 
 
     mapHelper.prototype.clipLayer = function (layer, props) {
-      var sw = L.latLng([props.MinViewY, props.MinViewX]),
-          nw = L.latLng([props.MaxViewY, props.MinViewX]),
-          ne = L.latLng([props.MaxViewY, props.MaxViewX]),
-          se = L.latLng([props.MinViewY, props.MaxViewX]),
-          clip = L.polygon([sw, nw, ne, se, sw]);
-      layer.addClipPolygon(clip);
+      var bbox = L.latLngBounds([props.MinViewY, props.MinViewX], [props.MaxViewY, props.MaxViewX]);
+      var bboxArr = L.gmxUtil.getNormalizeBounds(bbox);
+      bboxArr.forEach(function (it) {
+        var clip = L.polygon([[it.min.y, it.min.x], [it.min.y, it.max.x], [it.max.y, it.max.x], [it.max.y, it.min.x]]);
+        layer.addClipPolygon(clip);
+      });
     }; // Формирует набор элементов tr используя контролы из shownProperties.
     // Параметры:
     // - shownProperties: массив со следующими свойствами:
@@ -14814,11 +14823,18 @@
           var updateQuery = _this._valueTextarea && _this._valueTextarea.value ? _this._valueTextarea.value : '';
           var whereQuery = _this._updateQueryTextarea && _this._updateQueryTextarea.value ? _this._updateQueryTextarea.value : '';
           whereQuery = _this.addGeomQuery(whereQuery);
-          var url = window.serverBase + 'VectorLayer/QueryScalar?sql=' + 'UPDATE ' + '"' + attributesTable.layerName + '"' + 'SET ' + '"' + _this.currentColumnName + '"' + '=' + updateQuery + (whereQuery ? 'WHERE ' + whereQuery : "");
+          var url = window.serverBase + 'VectorLayer/QueryScalar'; // 'UPDATE ' + '"' + attributesTable.layerName + '"' +
+          // 'SET ' +  '"' + _this.currentColumnName + '"' + '=' + updateQuery + (whereQuery ? ('WHERE ' + whereQuery) : "");
+
+          var sql = encodeURIComponent('UPDATE "' + attributesTable.layerName + '" SET "' + _this.currentColumnName + '" = ' + updateQuery + (whereQuery ? 'WHERE ' + whereQuery : ""));
           fetch(url, {
             method: 'POST',
             credentials: 'include',
-            mode: 'cors'
+            mode: 'cors',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: 'sql=' + sql
           }).then(toJson).then(resCallback)["catch"](catchErr);
 
           function toJson(res) {
@@ -14828,7 +14844,6 @@
           function resCallback(res) {
             var json;
             $(spinHolder).hide();
-            res = res.substring(1, res.length - 1);
             json = JSON.parse(res);
 
             if (json.Status === 'error') {
@@ -15505,7 +15520,8 @@
             showColumnsListButton = nsGmx$1.Utils.makeLinkButton(_gtxt('Показывать колонки')),
             selectedCopy = nsGmx$1.Utils.makeLinkButton(_gtxt('Скопировать')),
             // selectedDownload = nsGmx.Utils.makeLinkButton(_gtxt('Скачать')),
-        selectedCont = nsGmx$1.Utils._span([nsGmx$1.Utils._t('Выбрано объектов:'), selectedCount, selectedDelete, selectedCopy], [['attr', 'class', 'hiddenCommands']]),
+        selectedCont = nsGmx$1.Utils._span([nsGmx$1.Utils._t('Выбрано объектов:'), selectedCount, selectedDelete, selectedCopy // selectedDownload
+        ], [['attr', 'class', 'hiddenCommands']]),
             groupBox = nsGmx$1.Utils._div([selectAllItems, nsGmx$1.Utils._span([nsGmx$1.Utils._t('Выделить все на странице')], [['css', 'marginLeft', '5px'], ['css', 'verticalAlign', 'top']]), selectedCont, showColumnsListButton, columnsList], [['attr', 'class', 'attrsSelectedCont']]);
 
         canvas.onclick = function () {
@@ -16869,7 +16885,6 @@
       */
       nsGmx$1.ContextMenuController = function () {
         var _menuItems = {};
-        var SUGGEST_TIMEOUT = 700; // Показывает контектное меню для конкретного элемента.
         // В Opera меню показывается при наведении на элемент в течении некоторого времени, во всех остальных браузерах - по правому клику.
         // Меню исчезает при потере фокуса
         // Параметры:
@@ -17000,7 +17015,7 @@
               if (typeof context === 'function') context = context(); //
 
               return _generateMenuDiv(type, context);
-            }, checkFunc, SUGGEST_TIMEOUT);
+            }, checkFunc);
           }
         };
       }();
@@ -19012,6 +19027,8 @@
 
           this._container.find('.notification-message').show().text(msg.text).removeClass(this._currentStatusClass).addClass(statusClass);
 
+          this._currentStatusClass = statusClass;
+
           if (msg.timeout) {
             this._messageTimer = setTimeout(function () {
               this._messageTimer = null;
@@ -19244,15 +19261,14 @@
             if (tags[tagId].tag == tagName) return tagId;
           }
         }
-        /**
-            Набор тегов (метаданных) слоя из определённого набора тегов
-            @memberOf nsGmx
-            @class
-            @param {nsGmx.TagMetaInfo} tagMetaInfo описание типов тегов
-            @param {Object} initTags теги для инициализации. Формат: {tagName: {Value: tagValue}, ...}. tagValue может быть массивом
-        */
-
       };
+      /**
+          Набор тегов (метаданных) слоя из определённого набора тегов
+          @memberOf nsGmx
+          @class
+          @param {nsGmx.TagMetaInfo} tagMetaInfo описание типов тегов
+          @param {Object} initTags теги для инициализации. Формат: {tagName: {Value: tagValue}, ...}. tagValue может быть массивом
+      */
 
       var LayerTagsWithInfo = function LayerTagsWithInfo(tagMetaInfo, initTags) {
         // чтобы можно было расширять существующий объект LayerTags
@@ -20397,21 +20413,24 @@
 
           if (styles.length === 1 && elem.name in nsGmx$1.gmxMap.layersByID) {
             var layer = nsGmx$1.gmxMap.layersByID[elem.name];
-            layer.on('stylechange', function () {
-              if (layer.getStyles().length === 1) {
-                var style = L.gmxUtil.toServerStyle(layer.getStyles()[0].RenderStyle);
 
-                var newIcon = _mapHelper.createStylesEditorIcon([{
-                  MinZoom: 1,
-                  MaxZoom: 21,
-                  RenderStyle: style
-                }], elem.GeometryType ? elem.GeometryType.toLowerCase() : 'polygon', {
-                  addTitle: !layerManagerFlag
-                });
+            if (!layer instanceof L.gmx.DummyLayer) {
+              layer.on('stylechange', function () {
+                if (layer.getStyles().length === 1) {
+                  var style = L.gmxUtil.toServerStyle(layer.getStyles()[0].RenderStyle);
 
-                $(iconSpan).empty().append(newIcon);
-              }
-            });
+                  var newIcon = _mapHelper.createStylesEditorIcon([{
+                    MinZoom: 1,
+                    MaxZoom: 21,
+                    RenderStyle: style
+                  }], elem.GeometryType ? elem.GeometryType.toLowerCase() : 'polygon', {
+                    addTitle: !layerManagerFlag
+                  });
+
+                  $(iconSpan).empty().append(newIcon);
+                }
+              });
+            }
           }
 
           $(iconSpan).attr('styleType', $(icon).attr('styleType'));
@@ -22250,90 +22269,96 @@
       }
     })(jQuery, nsGmx$1.Utils._);
 
-    var classCallCheck = function (instance, Constructor) {
+    function _classCallCheck(instance, Constructor) {
       if (!(instance instanceof Constructor)) {
         throw new TypeError("Cannot call a class as a function");
       }
-    };
+    }
 
-    var createClass = function () {
-      function defineProperties(target, props) {
-        for (var i = 0; i < props.length; i++) {
-          var descriptor = props[i];
-          descriptor.enumerable = descriptor.enumerable || false;
-          descriptor.configurable = true;
-          if ("value" in descriptor) descriptor.writable = true;
-          Object.defineProperty(target, descriptor.key, descriptor);
-        }
+    function _defineProperties(target, props) {
+      for (var i = 0; i < props.length; i++) {
+        var descriptor = props[i];
+        descriptor.enumerable = descriptor.enumerable || false;
+        descriptor.configurable = true;
+        if ("value" in descriptor) descriptor.writable = true;
+        Object.defineProperty(target, descriptor.key, descriptor);
+      }
+    }
+
+    function _createClass(Constructor, protoProps, staticProps) {
+      if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+      if (staticProps) _defineProperties(Constructor, staticProps);
+      return Constructor;
+    }
+
+    var EventTarget =
+    /*#__PURE__*/
+    function () {
+      function EventTarget() {
+        _classCallCheck(this, EventTarget);
+
+        this.listeners = {};
       }
 
-      return function (Constructor, protoProps, staticProps) {
-        if (protoProps) defineProperties(Constructor.prototype, protoProps);
-        if (staticProps) defineProperties(Constructor, staticProps);
-        return Constructor;
-      };
-    }();
+      _createClass(EventTarget, [{
+        key: "addEventListener",
+        value: function addEventListener(type, callback) {
+          if (!(type in this.listeners)) {
+            this.listeners[type] = [];
+          }
 
-    var EventTarget = function () {
-        function EventTarget() {
-            classCallCheck(this, EventTarget);
-
-            this.listeners = {};
+          this.listeners[type].push(callback);
         }
+      }, {
+        key: "on",
+        value: function on(type, callback) {
+          this.addEventListener(type, callback);
+          return this;
+        }
+      }, {
+        key: "removeEventListener",
+        value: function removeEventListener(type, callback) {
+          if (!(type in this.listeners)) {
+            return;
+          }
 
-        createClass(EventTarget, [{
-            key: 'addEventListener',
-            value: function addEventListener(type, callback) {
-                if (!(type in this.listeners)) {
-                    this.listeners[type] = [];
-                }
-                this.listeners[type].push(callback);
+          var stack = this.listeners[type];
+
+          for (var i = 0, l = stack.length; i < l; i++) {
+            if (stack[i] === callback) {
+              stack.splice(i, 1);
+              return this.removeEventListener(type, callback);
             }
-        }, {
-            key: 'on',
-            value: function on(type, callback) {
-                this.addEventListener(type, callback);
-                return this;
-            }
-        }, {
-            key: 'removeEventListener',
-            value: function removeEventListener(type, callback) {
-                if (!(type in this.listeners)) {
-                    return;
-                }
-                var stack = this.listeners[type];
-                for (var i = 0, l = stack.length; i < l; i++) {
-                    if (stack[i] === callback) {
-                        stack.splice(i, 1);
-                        return this.removeEventListener(type, callback);
-                    }
-                }
-            }
-        }, {
-            key: 'off',
-            value: function off(type, callback) {
-                this.removeEventListener(type, callback);
-                return this;
-            }
-        }, {
-            key: 'dispatchEvent',
-            value: function dispatchEvent(event) {
-                if (!(event.type in this.listeners)) {
-                    return;
-                }
-                var stack = this.listeners[event.type];
-                Object.defineProperty(event, 'target', {
-                    enumerable: false,
-                    configurable: false,
-                    writable: false,
-                    value: this
-                });
-                for (var i = 0, l = stack.length; i < l; i++) {
-                    stack[i].call(this, event);
-                }
-            }
-        }]);
-        return EventTarget;
+          }
+        }
+      }, {
+        key: "off",
+        value: function off(type, callback) {
+          this.removeEventListener(type, callback);
+          return this;
+        }
+      }, {
+        key: "dispatchEvent",
+        value: function dispatchEvent(event) {
+          if (!(event.type in this.listeners)) {
+            return;
+          }
+
+          var stack = this.listeners[event.type];
+          Object.defineProperty(event, 'target', {
+            enumerable: false,
+            configurable: false,
+            writable: false,
+            value: this
+          });
+
+          for (var i = 0, l = stack.length; i < l; i++) {
+            stack[i].call(this, event);
+          }
+        }
+      }]);
+
+      return EventTarget;
     }();
 
     var scanexEventTarget_cjs = EventTarget;
@@ -23055,14 +23080,13 @@
 
         return sResultString;
       }
-      /** Конструктор
-       @class Предоставляет функции, отображающие найденные объекты на карте
-       @memberof Search
-       @param {L.Map} map карта, на которой будут рисоваться объекты
-       @param {string} sInitImagesHost - строка пути к картинкам
-       @param {bool} bInitAutoCenter - если true, карта будет центрироваться по 1ому найденному объекту*/
-
     };
+    /** Конструктор
+     @class Предоставляет функции, отображающие найденные объекты на карте
+     @memberof Search
+     @param {L.Map} map карта, на которой будут рисоваться объекты
+     @param {string} sInitImagesHost - строка пути к картинкам
+     @param {bool} bInitAutoCenter - если true, карта будет центрироваться по 1ому найденному объекту*/
 
     var ResultRenderer = function ResultRenderer(map, sInitImagesHost, bInitAutoCenter) {
       if (map == null) throw "ResultRenderer.Map is null";
@@ -24426,9 +24450,6 @@
 
                 this._input.value = this._inputText;
                 break;
-
-              default:
-                break;
             }
           } else {
             if (e.keyCode === 13 && this._input.value) {
@@ -25780,13 +25801,12 @@
     var loadServerData = window.loadServerData = {
       WFS: {},
       WMS: {}
-      /* Порядок координат в WFS зависит от формата SRS (http://geoserver.org/display/GEOSDOC/2.+WFS+-+Web+Feature+Service)
-          * EPSG:xxxx: longitude/latitude (supported in WFS 1.1 requests too)
-          * http://www.opengis.net/gml/srs/epsg.xml#xxxx: longitude/latitude (supported in WFS 1.1 requests too)
-          * urn:x-ogc:def:crs:EPSG:xxxx: latitude/longitude
-      */
-
     };
+    /* Порядок координат в WFS зависит от формата SRS (http://geoserver.org/display/GEOSDOC/2.+WFS+-+Web+Feature+Service)
+        * EPSG:xxxx: longitude/latitude (supported in WFS 1.1 requests too)
+        * http://www.opengis.net/gml/srs/epsg.xml#xxxx: longitude/latitude (supported in WFS 1.1 requests too)
+        * urn:x-ogc:def:crs:EPSG:xxxx: latitude/longitude
+    */
 
     var wfsParser = function wfsParser() {
       this.gmlns = window.location.protocol + '//www.opengis.net/gml';
@@ -26261,7 +26281,7 @@
 
       for (var i = 0; i < geometries.length; i++) {
         //var elem = parent[geometries[i].geometry.type].addObject(geometries[i].geometry);
-        items[geometries[i].geometry.type].push([L.gmxUtil.geoJSONtoGeometry(geometries[i].geometry, true)]); //parent[geometries[i].geometry.type].addItems();
+        items[geometries[i].geometry.type].push([L.gmxUtil.geoJSONtoGeometry(geometries[i].geometry, false)]); //parent[geometries[i].geometry.type].addItems();
 
         /*if (objLength(geometries[i].feature) > 0)
         {
@@ -26667,6 +26687,2242 @@
         }
       }
     });
+
+    function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
+
+    var L$1 = _interopDefault(leaflet);
+
+    function noop() { }
+    function assign(tar, src) {
+        // @ts-ignore
+        for (const k in src)
+            tar[k] = src[k];
+        return tar;
+    }
+    function run(fn) {
+        return fn();
+    }
+    function blank_object() {
+        return Object.create(null);
+    }
+    function run_all(fns) {
+        fns.forEach(run);
+    }
+    function is_function(thing) {
+        return typeof thing === 'function';
+    }
+    function safe_not_equal(a, b) {
+        return a != a ? b == b : a !== b || ((a && typeof a === 'object') || typeof a === 'function');
+    }
+
+    function append(target, node) {
+        target.appendChild(node);
+    }
+    function insert(target, node, anchor) {
+        target.insertBefore(node, anchor || null);
+    }
+    function detach(node) {
+        node.parentNode.removeChild(node);
+    }
+    function destroy_each(iterations, detaching) {
+        for (let i = 0; i < iterations.length; i += 1) {
+            if (iterations[i])
+                iterations[i].d(detaching);
+        }
+    }
+    function element(name) {
+        return document.createElement(name);
+    }
+    function text(data) {
+        return document.createTextNode(data);
+    }
+    function space() {
+        return text(' ');
+    }
+    function listen(node, event, handler, options) {
+        node.addEventListener(event, handler, options);
+        return () => node.removeEventListener(event, handler, options);
+    }
+    function stop_propagation(fn) {
+        return function (event) {
+            event.stopPropagation();
+            // @ts-ignore
+            return fn.call(this, event);
+        };
+    }
+    function attr(node, attribute, value) {
+        if (value == null)
+            node.removeAttribute(attribute);
+        else if (node.getAttribute(attribute) !== value)
+            node.setAttribute(attribute, value);
+    }
+    function children(element) {
+        return Array.from(element.childNodes);
+    }
+    function set_data(text, data) {
+        data = '' + data;
+        if (text.data !== data)
+            text.data = data;
+    }
+    function set_input_value(input, value) {
+        if (value != null || input.value) {
+            input.value = value;
+        }
+    }
+    function toggle_class(element, name, toggle) {
+        element.classList[toggle ? 'add' : 'remove'](name);
+    }
+    function custom_event(type, detail) {
+        const e = document.createEvent('CustomEvent');
+        e.initCustomEvent(type, false, false, detail);
+        return e;
+    }
+
+    let current_component;
+    function set_current_component(component) {
+        current_component = component;
+    }
+    function get_current_component() {
+        if (!current_component)
+            throw new Error(`Function called outside component initialization`);
+        return current_component;
+    }
+    function onMount(fn) {
+        get_current_component().$$.on_mount.push(fn);
+    }
+    function createEventDispatcher() {
+        const component = get_current_component();
+        return (type, detail) => {
+            const callbacks = component.$$.callbacks[type];
+            if (callbacks) {
+                // TODO are there situations where events could be dispatched
+                // in a server (non-DOM) environment?
+                const event = custom_event(type, detail);
+                callbacks.slice().forEach(fn => {
+                    fn.call(component, event);
+                });
+            }
+        };
+    }
+    // TODO figure out if we still want to support
+    // shorthand events, or if we want to implement
+    // a real bubbling mechanism
+    function bubble(component, event) {
+        const callbacks = component.$$.callbacks[event.type];
+        if (callbacks) {
+            callbacks.slice().forEach(fn => fn(event));
+        }
+    }
+
+    const dirty_components = [];
+    const binding_callbacks = [];
+    const render_callbacks = [];
+    const flush_callbacks = [];
+    const resolved_promise = Promise.resolve();
+    let update_scheduled = false;
+    function schedule_update() {
+        if (!update_scheduled) {
+            update_scheduled = true;
+            resolved_promise.then(flush);
+        }
+    }
+    function add_render_callback(fn) {
+        render_callbacks.push(fn);
+    }
+    const seen_callbacks = new Set();
+    function flush() {
+        do {
+            // first, call beforeUpdate functions
+            // and update components
+            while (dirty_components.length) {
+                const component = dirty_components.shift();
+                set_current_component(component);
+                update(component.$$);
+            }
+            while (binding_callbacks.length)
+                binding_callbacks.pop()();
+            // then, once components are updated, call
+            // afterUpdate functions. This may cause
+            // subsequent updates...
+            for (let i = 0; i < render_callbacks.length; i += 1) {
+                const callback = render_callbacks[i];
+                if (!seen_callbacks.has(callback)) {
+                    // ...so guard against infinite loops
+                    seen_callbacks.add(callback);
+                    callback();
+                }
+            }
+            render_callbacks.length = 0;
+        } while (dirty_components.length);
+        while (flush_callbacks.length) {
+            flush_callbacks.pop()();
+        }
+        update_scheduled = false;
+        seen_callbacks.clear();
+    }
+    function update($$) {
+        if ($$.fragment !== null) {
+            $$.update();
+            run_all($$.before_update);
+            const dirty = $$.dirty;
+            $$.dirty = [-1];
+            $$.fragment && $$.fragment.p($$.ctx, dirty);
+            $$.after_update.forEach(add_render_callback);
+        }
+    }
+    const outroing = new Set();
+    let outros;
+    function group_outros() {
+        outros = {
+            r: 0,
+            c: [],
+            p: outros // parent group
+        };
+    }
+    function check_outros() {
+        if (!outros.r) {
+            run_all(outros.c);
+        }
+        outros = outros.p;
+    }
+    function transition_in(block, local) {
+        if (block && block.i) {
+            outroing.delete(block);
+            block.i(local);
+        }
+    }
+    function transition_out(block, local, detach, callback) {
+        if (block && block.o) {
+            if (outroing.has(block))
+                return;
+            outroing.add(block);
+            outros.c.push(() => {
+                outroing.delete(block);
+                if (callback) {
+                    if (detach)
+                        block.d(1);
+                    callback();
+                }
+            });
+            block.o(local);
+        }
+    }
+
+    function get_spread_update(levels, updates) {
+        const update = {};
+        const to_null_out = {};
+        const accounted_for = { $$scope: 1 };
+        let i = levels.length;
+        while (i--) {
+            const o = levels[i];
+            const n = updates[i];
+            if (n) {
+                for (const key in o) {
+                    if (!(key in n))
+                        to_null_out[key] = 1;
+                }
+                for (const key in n) {
+                    if (!accounted_for[key]) {
+                        update[key] = n[key];
+                        accounted_for[key] = 1;
+                    }
+                }
+                levels[i] = n;
+            }
+            else {
+                for (const key in o) {
+                    accounted_for[key] = 1;
+                }
+            }
+        }
+        for (const key in to_null_out) {
+            if (!(key in update))
+                update[key] = undefined;
+        }
+        return update;
+    }
+    function get_spread_object(spread_props) {
+        return typeof spread_props === 'object' && spread_props !== null ? spread_props : {};
+    }
+    function create_component(block) {
+        block && block.c();
+    }
+    function mount_component(component, target, anchor) {
+        const { fragment, on_mount, on_destroy, after_update } = component.$$;
+        fragment && fragment.m(target, anchor);
+        // onMount happens before the initial afterUpdate
+        add_render_callback(() => {
+            const new_on_destroy = on_mount.map(run).filter(is_function);
+            if (on_destroy) {
+                on_destroy.push(...new_on_destroy);
+            }
+            else {
+                // Edge case - component was destroyed immediately,
+                // most likely as a result of a binding initialising
+                run_all(new_on_destroy);
+            }
+            component.$$.on_mount = [];
+        });
+        after_update.forEach(add_render_callback);
+    }
+    function destroy_component(component, detaching) {
+        const $$ = component.$$;
+        if ($$.fragment !== null) {
+            run_all($$.on_destroy);
+            $$.fragment && $$.fragment.d(detaching);
+            // TODO null out other refs, including component.$$ (but need to
+            // preserve final state?)
+            $$.on_destroy = $$.fragment = null;
+            $$.ctx = [];
+        }
+    }
+    function make_dirty(component, i) {
+        if (component.$$.dirty[0] === -1) {
+            dirty_components.push(component);
+            schedule_update();
+            component.$$.dirty.fill(0);
+        }
+        component.$$.dirty[(i / 31) | 0] |= (1 << (i % 31));
+    }
+    function init(component, options, instance, create_fragment, not_equal, props, dirty = [-1]) {
+        const parent_component = current_component;
+        set_current_component(component);
+        const prop_values = options.props || {};
+        const $$ = component.$$ = {
+            fragment: null,
+            ctx: null,
+            // state
+            props,
+            update: noop,
+            not_equal,
+            bound: blank_object(),
+            // lifecycle
+            on_mount: [],
+            on_destroy: [],
+            before_update: [],
+            after_update: [],
+            context: new Map(parent_component ? parent_component.$$.context : []),
+            // everything else
+            callbacks: blank_object(),
+            dirty
+        };
+        let ready = false;
+        $$.ctx = instance
+            ? instance(component, prop_values, (i, ret, ...rest) => {
+                const value = rest.length ? rest[0] : ret;
+                if ($$.ctx && not_equal($$.ctx[i], $$.ctx[i] = value)) {
+                    if ($$.bound[i])
+                        $$.bound[i](value);
+                    if (ready)
+                        make_dirty(component, i);
+                }
+                return ret;
+            })
+            : [];
+        $$.update();
+        ready = true;
+        run_all($$.before_update);
+        // `false` as a special case of no DOM component
+        $$.fragment = create_fragment ? create_fragment($$.ctx) : false;
+        if (options.target) {
+            if (options.hydrate) {
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                $$.fragment && $$.fragment.l(children(options.target));
+            }
+            else {
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                $$.fragment && $$.fragment.c();
+            }
+            if (options.intro)
+                transition_in(component.$$.fragment);
+            mount_component(component, options.target, options.anchor);
+            flush();
+        }
+        set_current_component(parent_component);
+    }
+    class SvelteComponent {
+        $destroy() {
+            destroy_component(this, 1);
+            this.$destroy = noop;
+        }
+        $on(type, callback) {
+            const callbacks = (this.$$.callbacks[type] || (this.$$.callbacks[type] = []));
+            callbacks.push(callback);
+            return () => {
+                const index = callbacks.indexOf(callback);
+                if (index !== -1)
+                    callbacks.splice(index, 1);
+            };
+        }
+        $set() {
+            // overridden by instance, if it has props
+        }
+    }
+
+    const uncap = str => `${str.substr(0, 1).toLowerCase()}${str.substr(1)}`;
+
+    const parseNode = node => {
+      let r = {};
+
+      for (const n of node.children) {
+        r[uncap(n.localName)] = n.value;
+      }
+
+      return r;
+    };
+
+    const toLayer = node => {
+      let r = {};
+
+      for (const n of node.children) {
+        const {
+          localName
+        } = n;
+
+        if (localName === 'Title') {
+          r.title = n.value;
+        }
+
+        switch (localName) {
+          case 'Title':
+          case 'Name':
+            r[uncap(localName)] = n.value;
+            break;
+
+          case 'Layer':
+            if (r.children) {
+              r.children.push(toLayer(n));
+            } else {
+              r.children = [toLayer(n)];
+            }
+
+            break;
+
+          case 'CRS':
+            if (r.crs) {
+              r.crs.push(n.value);
+            } else {
+              r.crs = [n.value];
+            }
+
+            break;
+
+          case 'EX_GeographicBoundingBox':
+            r.exGeographicBoundingBox = parseNode(n);
+            break;
+
+          case 'BoundingBox':
+            if (r.boundingBoxes) {
+              r.boundingBoxes.push(n.attributes);
+            } else {
+              r.boundingBoxes = [n.attributes];
+            }
+
+            break;
+        }
+      }
+
+      return r;
+    };
+
+    const toLayers = ({
+      children
+    }) => {
+      return children.reduce((a, n) => {
+        switch (n.localName) {
+          case 'Capability':
+            n.children.filter(x => x.localName === 'Layer').map(toLayer).forEach(x => a.layers = a.layers ? a.layers.concat(x) : [x]);
+            break;
+
+          case 'Service':
+            a = { ...a,
+              ...parseNode(n)
+            };
+            break;
+        }
+
+        return a;
+      }, {});
+    };
+
+    const toFeature = node => {
+      let r = {};
+
+      for (const n of node.children) {
+        const {
+          localName
+        } = n;
+
+        switch (localName) {
+          case 'Title':
+          case 'Name':
+          case 'Abstract':
+          case 'DefaultSRS':
+            r[uncap(localName)] = n.value;
+            break;
+
+          case 'OtherSRS':
+            if (r.otherSRS) {
+              r.otherSRS.push(n.value);
+            } else {
+              r.otherSRS = [n.value];
+            }
+
+            break;
+
+          case 'WGS84BoundingBox':
+            r.wgs84BoundingBox = parseNode(n);
+            break;
+        }
+      }
+
+      return r;
+    };
+
+    const toFeatures = ({
+      children
+    }) => {
+      return children.reduce((a, n) => {
+        const {
+          localName
+        } = n;
+
+        switch (localName) {
+          case 'FeatureTypeList':
+            n.children.filter(x => x.localName === 'FeatureType').map(toFeature).forEach(x => a.features = a.features ? a.features.concat(x) : [x]);
+            break;
+
+          case 'ServiceIdentification':
+            a = { ...a,
+              ...parseNode(n)
+            };
+            break;
+        }
+
+        return a;
+      }, []);
+    };
+
+    /* src\Feature.svelte generated by Svelte v3.18.1 */
+
+    function create_fragment(ctx) {
+    	let div;
+    	let i;
+    	let t0;
+    	let t1;
+    	let dispose;
+
+    	return {
+    		c() {
+    			div = element("div");
+    			i = element("i");
+    			t0 = space();
+    			t1 = text(/*title*/ ctx[1]);
+    			attr(i, "class", "scanex-svc-view-visible icon");
+    			toggle_class(i, "check-square", /*visible*/ ctx[0]);
+    			toggle_class(i, "square", !/*visible*/ ctx[0]);
+    			attr(div, "class", "feature");
+    		},
+    		m(target, anchor) {
+    			insert(target, div, anchor);
+    			append(div, i);
+    			append(div, t0);
+    			append(div, t1);
+    			dispose = listen(i, "click", stop_propagation(/*toggleVisibility*/ ctx[2]));
+    		},
+    		p(ctx, [dirty]) {
+    			if (dirty & /*visible*/ 1) {
+    				toggle_class(i, "check-square", /*visible*/ ctx[0]);
+    			}
+
+    			if (dirty & /*visible*/ 1) {
+    				toggle_class(i, "square", !/*visible*/ ctx[0]);
+    			}
+
+    			if (dirty & /*title*/ 2) set_data(t1, /*title*/ ctx[1]);
+    		},
+    		i: noop,
+    		o: noop,
+    		d(detaching) {
+    			if (detaching) detach(div);
+    			dispose();
+    		}
+    	};
+    }
+
+    function instance($$self, $$props, $$invalidate) {
+    	const dispatch = createEventDispatcher();
+    	let { name = "" } = $$props;
+    	let { title = "" } = $$props;
+    	let { abstract = "" } = $$props;
+    	let { visible = false } = $$props;
+
+    	function toggleVisibility() {
+    		$$invalidate(0, visible = !visible);
+    		dispatch("change:visible", { title, name, abstract, visible });
+    	}
+
+    	$$self.$set = $$props => {
+    		if ("name" in $$props) $$invalidate(3, name = $$props.name);
+    		if ("title" in $$props) $$invalidate(1, title = $$props.title);
+    		if ("abstract" in $$props) $$invalidate(4, abstract = $$props.abstract);
+    		if ("visible" in $$props) $$invalidate(0, visible = $$props.visible);
+    	};
+
+    	return [visible, title, toggleVisibility, name, abstract];
+    }
+
+    class Feature extends SvelteComponent {
+    	constructor(options) {
+    		super();
+
+    		init(this, options, instance, create_fragment, safe_not_equal, {
+    			name: 3,
+    			title: 1,
+    			abstract: 4,
+    			visible: 0
+    		});
+    	}
+    }
+
+    /* src\WFS.svelte generated by Svelte v3.18.1 */
+
+    function get_each_context(ctx, list, i) {
+    	const child_ctx = ctx.slice();
+    	child_ctx[5] = list[i];
+    	return child_ctx;
+    }
+
+    // (32:8) {#each features as f}
+    function create_each_block(ctx) {
+    	let current;
+    	const feature_spread_levels = [/*f*/ ctx[5]];
+    	let feature_props = {};
+
+    	for (let i = 0; i < feature_spread_levels.length; i += 1) {
+    		feature_props = assign(feature_props, feature_spread_levels[i]);
+    	}
+
+    	const feature = new Feature({ props: feature_props });
+    	feature.$on("change:visible", /*onChangeVisible*/ ctx[3]);
+
+    	return {
+    		c() {
+    			create_component(feature.$$.fragment);
+    		},
+    		m(target, anchor) {
+    			mount_component(feature, target, anchor);
+    			current = true;
+    		},
+    		p(ctx, dirty) {
+    			const feature_changes = (dirty & /*features*/ 2)
+    			? get_spread_update(feature_spread_levels, [get_spread_object(/*f*/ ctx[5])])
+    			: {};
+
+    			feature.$set(feature_changes);
+    		},
+    		i(local) {
+    			if (current) return;
+    			transition_in(feature.$$.fragment, local);
+    			current = true;
+    		},
+    		o(local) {
+    			transition_out(feature.$$.fragment, local);
+    			current = false;
+    		},
+    		d(detaching) {
+    			destroy_component(feature, detaching);
+    		}
+    	};
+    }
+
+    function create_fragment$1(ctx) {
+    	let div3;
+    	let div1;
+    	let table;
+    	let tr;
+    	let td0;
+    	let t1;
+    	let td1;
+    	let t2;
+    	let t3;
+    	let td2;
+    	let i;
+    	let t4;
+    	let div2;
+    	let current;
+    	let dispose;
+    	let each_value = /*features*/ ctx[1];
+    	let each_blocks = [];
+
+    	for (let i = 0; i < each_value.length; i += 1) {
+    		each_blocks[i] = create_each_block(get_each_context(ctx, each_value, i));
+    	}
+
+    	const out = i => transition_out(each_blocks[i], 1, 1, () => {
+    		each_blocks[i] = null;
+    	});
+
+    	return {
+    		c() {
+    			div3 = element("div");
+    			div1 = element("div");
+    			table = element("table");
+    			tr = element("tr");
+    			td0 = element("td");
+    			td0.innerHTML = `<div class="service">WFS</div>`;
+    			t1 = space();
+    			td1 = element("td");
+    			t2 = text(/*title*/ ctx[0]);
+    			t3 = space();
+    			td2 = element("td");
+    			i = element("i");
+    			t4 = space();
+    			div2 = element("div");
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].c();
+    			}
+
+    			attr(td1, "class", "title");
+    			attr(i, "class", "icon close");
+    			attr(table, "cellspacing", "0");
+    			attr(table, "cellpadding", "0");
+    			attr(div1, "class", "header");
+    			attr(div2, "class", "content");
+    			attr(div3, "class", "scanex-svc-view-link");
+    		},
+    		m(target, anchor) {
+    			insert(target, div3, anchor);
+    			append(div3, div1);
+    			append(div1, table);
+    			append(table, tr);
+    			append(tr, td0);
+    			append(tr, t1);
+    			append(tr, td1);
+    			append(td1, t2);
+    			append(tr, t3);
+    			append(tr, td2);
+    			append(td2, i);
+    			append(div3, t4);
+    			append(div3, div2);
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].m(div2, null);
+    			}
+
+    			current = true;
+    			dispose = listen(i, "click", /*click_handler*/ ctx[4]);
+    		},
+    		p(ctx, [dirty]) {
+    			if (!current || dirty & /*title*/ 1) set_data(t2, /*title*/ ctx[0]);
+
+    			if (dirty & /*features, onChangeVisible*/ 10) {
+    				each_value = /*features*/ ctx[1];
+    				let i;
+
+    				for (i = 0; i < each_value.length; i += 1) {
+    					const child_ctx = get_each_context(ctx, each_value, i);
+
+    					if (each_blocks[i]) {
+    						each_blocks[i].p(child_ctx, dirty);
+    						transition_in(each_blocks[i], 1);
+    					} else {
+    						each_blocks[i] = create_each_block(child_ctx);
+    						each_blocks[i].c();
+    						transition_in(each_blocks[i], 1);
+    						each_blocks[i].m(div2, null);
+    					}
+    				}
+
+    				group_outros();
+
+    				for (i = each_value.length; i < each_blocks.length; i += 1) {
+    					out(i);
+    				}
+
+    				check_outros();
+    			}
+    		},
+    		i(local) {
+    			if (current) return;
+
+    			for (let i = 0; i < each_value.length; i += 1) {
+    				transition_in(each_blocks[i]);
+    			}
+
+    			current = true;
+    		},
+    		o(local) {
+    			each_blocks = each_blocks.filter(Boolean);
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				transition_out(each_blocks[i]);
+    			}
+
+    			current = false;
+    		},
+    		d(detaching) {
+    			if (detaching) detach(div3);
+    			destroy_each(each_blocks, detaching);
+    			dispose();
+    		}
+    	};
+    }
+
+    function instance$1($$self, $$props, $$invalidate) {
+    	let { title = "" } = $$props;
+    	let { features = [] } = $$props;
+    	const dispatch = createEventDispatcher();
+
+    	function onChangeVisible({ detail }) {
+    		dispatch("change:visible", { ...detail, service: "WFS" });
+    	}
+
+    	const click_handler = () => dispatch("close");
+
+    	$$self.$set = $$props => {
+    		if ("title" in $$props) $$invalidate(0, title = $$props.title);
+    		if ("features" in $$props) $$invalidate(1, features = $$props.features);
+    	};
+
+    	return [title, features, dispatch, onChangeVisible, click_handler];
+    }
+
+    class WFS extends SvelteComponent {
+    	constructor(options) {
+    		super();
+    		init(this, options, instance$1, create_fragment$1, safe_not_equal, { title: 0, features: 1 });
+    	}
+    }
+
+    /* src\Layer.svelte generated by Svelte v3.18.1 */
+
+    function get_each_context$1(ctx, list, i) {
+    	const child_ctx = ctx.slice();
+    	child_ctx[16] = list[i];
+    	child_ctx[18] = i;
+    	return child_ctx;
+    }
+
+    // (68:12) {#if hasChildren}
+    function create_if_block_1(ctx) {
+    	let i;
+
+    	return {
+    		c() {
+    			i = element("i");
+    			attr(i, "class", "scanex-svc-view-folder icon");
+    			toggle_class(i, "folder-open", /*expanded*/ ctx[2]);
+    			toggle_class(i, "folder", !/*expanded*/ ctx[2]);
+    		},
+    		m(target, anchor) {
+    			insert(target, i, anchor);
+    		},
+    		p(ctx, dirty) {
+    			if (dirty & /*expanded*/ 4) {
+    				toggle_class(i, "folder-open", /*expanded*/ ctx[2]);
+    			}
+
+    			if (dirty & /*expanded*/ 4) {
+    				toggle_class(i, "folder", !/*expanded*/ ctx[2]);
+    			}
+    		},
+    		d(detaching) {
+    			if (detaching) detach(i);
+    		}
+    	};
+    }
+
+    // (73:4) {#if Array.isArray(children) && children.length > 0}
+    function create_if_block(ctx) {
+    	let div;
+    	let current;
+    	let each_value = /*children*/ ctx[0];
+    	let each_blocks = [];
+
+    	for (let i = 0; i < each_value.length; i += 1) {
+    		each_blocks[i] = create_each_block$1(get_each_context$1(ctx, each_value, i));
+    	}
+
+    	const out = i => transition_out(each_blocks[i], 1, 1, () => {
+    		each_blocks[i] = null;
+    	});
+
+    	return {
+    		c() {
+    			div = element("div");
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].c();
+    			}
+
+    			attr(div, "class", "children");
+    			toggle_class(div, "collapsed", !/*expanded*/ ctx[2]);
+    		},
+    		m(target, anchor) {
+    			insert(target, div, anchor);
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].m(div, null);
+    			}
+
+    			current = true;
+    		},
+    		p(ctx, dirty) {
+    			if (dirty & /*children, onChangeState*/ 257) {
+    				each_value = /*children*/ ctx[0];
+    				let i;
+
+    				for (i = 0; i < each_value.length; i += 1) {
+    					const child_ctx = get_each_context$1(ctx, each_value, i);
+
+    					if (each_blocks[i]) {
+    						each_blocks[i].p(child_ctx, dirty);
+    						transition_in(each_blocks[i], 1);
+    					} else {
+    						each_blocks[i] = create_each_block$1(child_ctx);
+    						each_blocks[i].c();
+    						transition_in(each_blocks[i], 1);
+    						each_blocks[i].m(div, null);
+    					}
+    				}
+
+    				group_outros();
+
+    				for (i = each_value.length; i < each_blocks.length; i += 1) {
+    					out(i);
+    				}
+
+    				check_outros();
+    			}
+
+    			if (dirty & /*expanded*/ 4) {
+    				toggle_class(div, "collapsed", !/*expanded*/ ctx[2]);
+    			}
+    		},
+    		i(local) {
+    			if (current) return;
+
+    			for (let i = 0; i < each_value.length; i += 1) {
+    				transition_in(each_blocks[i]);
+    			}
+
+    			current = true;
+    		},
+    		o(local) {
+    			each_blocks = each_blocks.filter(Boolean);
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				transition_out(each_blocks[i]);
+    			}
+
+    			current = false;
+    		},
+    		d(detaching) {
+    			if (detaching) detach(div);
+    			destroy_each(each_blocks, detaching);
+    		}
+    	};
+    }
+
+    // (75:8) {#each children as layer, i}
+    function create_each_block$1(ctx) {
+    	let current;
+    	const layer_spread_levels = [/*layer*/ ctx[16]];
+
+    	function change_state_handler(...args) {
+    		return /*change_state_handler*/ ctx[15](/*i*/ ctx[18], ...args);
+    	}
+
+    	let layer_props = {};
+
+    	for (let i = 0; i < layer_spread_levels.length; i += 1) {
+    		layer_props = assign(layer_props, layer_spread_levels[i]);
+    	}
+
+    	const layer = new Layer({ props: layer_props });
+    	layer.$on("change:visible", /*change_visible_handler*/ ctx[14]);
+    	layer.$on("change:state", change_state_handler);
+
+    	return {
+    		c() {
+    			create_component(layer.$$.fragment);
+    		},
+    		m(target, anchor) {
+    			mount_component(layer, target, anchor);
+    			current = true;
+    		},
+    		p(new_ctx, dirty) {
+    			ctx = new_ctx;
+
+    			const layer_changes = (dirty & /*children*/ 1)
+    			? get_spread_update(layer_spread_levels, [get_spread_object(/*layer*/ ctx[16])])
+    			: {};
+
+    			layer.$set(layer_changes);
+    		},
+    		i(local) {
+    			if (current) return;
+    			transition_in(layer.$$.fragment, local);
+    			current = true;
+    		},
+    		o(local) {
+    			transition_out(layer.$$.fragment, local);
+    			current = false;
+    		},
+    		d(detaching) {
+    			destroy_component(layer, detaching);
+    		}
+    	};
+    }
+
+    function create_fragment$2(ctx) {
+    	let div1;
+    	let div0;
+    	let i;
+    	let t0;
+    	let t1;
+    	let t2;
+    	let t3;
+    	let show_if = Array.isArray(/*children*/ ctx[0]) && /*children*/ ctx[0].length > 0;
+    	let current;
+    	let dispose;
+    	let if_block0 = /*hasChildren*/ ctx[5] && create_if_block_1(ctx);
+    	let if_block1 = show_if && create_if_block(ctx);
+
+    	return {
+    		c() {
+    			div1 = element("div");
+    			div0 = element("div");
+    			i = element("i");
+    			t0 = space();
+    			if (if_block0) if_block0.c();
+    			t1 = space();
+    			t2 = text(/*title*/ ctx[1]);
+    			t3 = space();
+    			if (if_block1) if_block1.c();
+    			attr(i, "class", "scanex-svc-view-visible icon");
+    			toggle_class(i, "check-square", /*state*/ ctx[3] === 1);
+    			toggle_class(i, "square", /*state*/ ctx[3] === 0);
+    			toggle_class(i, "minus-square", /*state*/ ctx[3] === -1);
+    			attr(div0, "class", "header");
+    			attr(div1, "class", "layer");
+    		},
+    		m(target, anchor) {
+    			insert(target, div1, anchor);
+    			append(div1, div0);
+    			append(div0, i);
+    			append(div0, t0);
+    			if (if_block0) if_block0.m(div0, null);
+    			append(div0, t1);
+    			append(div0, t2);
+    			append(div1, t3);
+    			if (if_block1) if_block1.m(div1, null);
+    			current = true;
+
+    			dispose = [
+    				listen(i, "click", stop_propagation(/*toggleVisibility*/ ctx[7])),
+    				listen(div0, "mouseenter", stop_propagation(/*mouseenter_handler*/ ctx[12])),
+    				listen(div0, "mouseleave", stop_propagation(/*mouseleave_handler*/ ctx[13])),
+    				listen(div0, "click", stop_propagation(/*toggleChildren*/ ctx[6]))
+    			];
+    		},
+    		p(ctx, [dirty]) {
+    			if (dirty & /*state*/ 8) {
+    				toggle_class(i, "check-square", /*state*/ ctx[3] === 1);
+    			}
+
+    			if (dirty & /*state*/ 8) {
+    				toggle_class(i, "square", /*state*/ ctx[3] === 0);
+    			}
+
+    			if (dirty & /*state*/ 8) {
+    				toggle_class(i, "minus-square", /*state*/ ctx[3] === -1);
+    			}
+
+    			if (/*hasChildren*/ ctx[5]) {
+    				if (if_block0) {
+    					if_block0.p(ctx, dirty);
+    				} else {
+    					if_block0 = create_if_block_1(ctx);
+    					if_block0.c();
+    					if_block0.m(div0, t1);
+    				}
+    			} else if (if_block0) {
+    				if_block0.d(1);
+    				if_block0 = null;
+    			}
+
+    			if (!current || dirty & /*title*/ 2) set_data(t2, /*title*/ ctx[1]);
+    			if (dirty & /*children*/ 1) show_if = Array.isArray(/*children*/ ctx[0]) && /*children*/ ctx[0].length > 0;
+
+    			if (show_if) {
+    				if (if_block1) {
+    					if_block1.p(ctx, dirty);
+    					transition_in(if_block1, 1);
+    				} else {
+    					if_block1 = create_if_block(ctx);
+    					if_block1.c();
+    					transition_in(if_block1, 1);
+    					if_block1.m(div1, null);
+    				}
+    			} else if (if_block1) {
+    				group_outros();
+
+    				transition_out(if_block1, 1, 1, () => {
+    					if_block1 = null;
+    				});
+
+    				check_outros();
+    			}
+    		},
+    		i(local) {
+    			if (current) return;
+    			transition_in(if_block1);
+    			current = true;
+    		},
+    		o(local) {
+    			transition_out(if_block1);
+    			current = false;
+    		},
+    		d(detaching) {
+    			if (detaching) detach(div1);
+    			if (if_block0) if_block0.d();
+    			if (if_block1) if_block1.d();
+    			run_all(dispose);
+    		}
+    	};
+    }
+
+    function instance$2($$self, $$props, $$invalidate) {
+    	let { title = "" } = $$props;
+    	let { name = "" } = $$props;
+    	let { children = [] } = $$props;
+    	let { visible = false } = $$props;
+    	let expanded = false;
+    	let state = 0;
+    	let infoVisible = false;
+    	const dispatch = createEventDispatcher();
+
+    	function toggleChildren() {
+    		$$invalidate(2, expanded = !expanded);
+    	}
+
+    	function toggleVisibility() {
+    		$$invalidate(9, visible = !visible);
+    		dispatch("change:visible", { title, name, visible });
+    		dispatch("change:state", { title, name, visible });
+    	}
+
+    	function onChangeState(detail, i) {
+    		if (hasChildren) {
+    			$$invalidate(0, children[i].visible = detail.visible, children);
+
+    			if (children.every(({ visible }) => visible === true)) {
+    				$$invalidate(9, visible = true);
+    			} else if (children.every(({ visible }) => visible === false)) {
+    				$$invalidate(9, visible = false);
+    			} else {
+    				$$invalidate(9, visible = undefined);
+    			}
+
+    			dispatch("change:state", { title, name, visible });
+    		}
+    	}
+
+    	const mouseenter_handler = () => $$invalidate(4, infoVisible = true);
+    	const mouseleave_handler = () => $$invalidate(4, infoVisible = false);
+
+    	function change_visible_handler(event) {
+    		bubble($$self, event);
+    	}
+
+    	const change_state_handler = (i, { detail }) => onChangeState(detail, i);
+
+    	$$self.$set = $$props => {
+    		if ("title" in $$props) $$invalidate(1, title = $$props.title);
+    		if ("name" in $$props) $$invalidate(10, name = $$props.name);
+    		if ("children" in $$props) $$invalidate(0, children = $$props.children);
+    		if ("visible" in $$props) $$invalidate(9, visible = $$props.visible);
+    	};
+
+    	let hasChildren;
+
+    	$$self.$$.update = () => {
+    		if ($$self.$$.dirty & /*visible, children*/ 513) {
+    			 {
+    				if (visible === true) {
+    					$$invalidate(3, state = 1);
+    				} else if (visible === false) {
+    					$$invalidate(3, state = 0);
+    				} else {
+    					$$invalidate(3, state = -1);
+    				}
+
+    				if (Array.isArray(children) && typeof visible !== "undefined") {
+    					for (let i = 0; i < children.length; i++) {
+    						$$invalidate(0, children[i].visible = visible, children);
+    						dispatch("change:visible", { ...children[i], visible });
+    					}
+    				}
+    			}
+    		}
+
+    		if ($$self.$$.dirty & /*children*/ 1) {
+    			 $$invalidate(5, hasChildren = Array.isArray(children) && children.length > 0);
+    		}
+    	};
+
+    	return [
+    		children,
+    		title,
+    		expanded,
+    		state,
+    		infoVisible,
+    		hasChildren,
+    		toggleChildren,
+    		toggleVisibility,
+    		onChangeState,
+    		visible,
+    		name,
+    		dispatch,
+    		mouseenter_handler,
+    		mouseleave_handler,
+    		change_visible_handler,
+    		change_state_handler
+    	];
+    }
+
+    class Layer extends SvelteComponent {
+    	constructor(options) {
+    		super();
+
+    		init(this, options, instance$2, create_fragment$2, safe_not_equal, {
+    			title: 1,
+    			name: 10,
+    			children: 0,
+    			visible: 9
+    		});
+    	}
+    }
+
+    /* src\WMS.svelte generated by Svelte v3.18.1 */
+
+    function get_each_context$2(ctx, list, i) {
+    	const child_ctx = ctx.slice();
+    	child_ctx[5] = list[i];
+    	return child_ctx;
+    }
+
+    // (32:8) {#each layers as layer}
+    function create_each_block$2(ctx) {
+    	let current;
+    	const layer_spread_levels = [/*layer*/ ctx[5]];
+    	let layer_props = {};
+
+    	for (let i = 0; i < layer_spread_levels.length; i += 1) {
+    		layer_props = assign(layer_props, layer_spread_levels[i]);
+    	}
+
+    	const layer = new Layer({ props: layer_props });
+    	layer.$on("change:visible", /*onChangeVisible*/ ctx[3]);
+
+    	return {
+    		c() {
+    			create_component(layer.$$.fragment);
+    		},
+    		m(target, anchor) {
+    			mount_component(layer, target, anchor);
+    			current = true;
+    		},
+    		p(ctx, dirty) {
+    			const layer_changes = (dirty & /*layers*/ 2)
+    			? get_spread_update(layer_spread_levels, [get_spread_object(/*layer*/ ctx[5])])
+    			: {};
+
+    			layer.$set(layer_changes);
+    		},
+    		i(local) {
+    			if (current) return;
+    			transition_in(layer.$$.fragment, local);
+    			current = true;
+    		},
+    		o(local) {
+    			transition_out(layer.$$.fragment, local);
+    			current = false;
+    		},
+    		d(detaching) {
+    			destroy_component(layer, detaching);
+    		}
+    	};
+    }
+
+    function create_fragment$3(ctx) {
+    	let div3;
+    	let div1;
+    	let table;
+    	let tr;
+    	let td0;
+    	let t1;
+    	let td1;
+    	let t2;
+    	let t3;
+    	let td2;
+    	let i;
+    	let t4;
+    	let div2;
+    	let current;
+    	let dispose;
+    	let each_value = /*layers*/ ctx[1];
+    	let each_blocks = [];
+
+    	for (let i = 0; i < each_value.length; i += 1) {
+    		each_blocks[i] = create_each_block$2(get_each_context$2(ctx, each_value, i));
+    	}
+
+    	const out = i => transition_out(each_blocks[i], 1, 1, () => {
+    		each_blocks[i] = null;
+    	});
+
+    	return {
+    		c() {
+    			div3 = element("div");
+    			div1 = element("div");
+    			table = element("table");
+    			tr = element("tr");
+    			td0 = element("td");
+    			td0.innerHTML = `<div class="service">WMS</div>`;
+    			t1 = space();
+    			td1 = element("td");
+    			t2 = text(/*title*/ ctx[0]);
+    			t3 = space();
+    			td2 = element("td");
+    			i = element("i");
+    			t4 = space();
+    			div2 = element("div");
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].c();
+    			}
+
+    			attr(td1, "class", "title");
+    			attr(i, "class", "icon close");
+    			attr(table, "cellspacing", "0");
+    			attr(table, "cellpadding", "0");
+    			attr(div1, "class", "header");
+    			attr(div2, "class", "content");
+    			attr(div3, "class", "scanex-svc-view-link");
+    		},
+    		m(target, anchor) {
+    			insert(target, div3, anchor);
+    			append(div3, div1);
+    			append(div1, table);
+    			append(table, tr);
+    			append(tr, td0);
+    			append(tr, t1);
+    			append(tr, td1);
+    			append(td1, t2);
+    			append(tr, t3);
+    			append(tr, td2);
+    			append(td2, i);
+    			append(div3, t4);
+    			append(div3, div2);
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].m(div2, null);
+    			}
+
+    			current = true;
+    			dispose = listen(i, "click", /*click_handler*/ ctx[4]);
+    		},
+    		p(ctx, [dirty]) {
+    			if (!current || dirty & /*title*/ 1) set_data(t2, /*title*/ ctx[0]);
+
+    			if (dirty & /*layers, onChangeVisible*/ 10) {
+    				each_value = /*layers*/ ctx[1];
+    				let i;
+
+    				for (i = 0; i < each_value.length; i += 1) {
+    					const child_ctx = get_each_context$2(ctx, each_value, i);
+
+    					if (each_blocks[i]) {
+    						each_blocks[i].p(child_ctx, dirty);
+    						transition_in(each_blocks[i], 1);
+    					} else {
+    						each_blocks[i] = create_each_block$2(child_ctx);
+    						each_blocks[i].c();
+    						transition_in(each_blocks[i], 1);
+    						each_blocks[i].m(div2, null);
+    					}
+    				}
+
+    				group_outros();
+
+    				for (i = each_value.length; i < each_blocks.length; i += 1) {
+    					out(i);
+    				}
+
+    				check_outros();
+    			}
+    		},
+    		i(local) {
+    			if (current) return;
+
+    			for (let i = 0; i < each_value.length; i += 1) {
+    				transition_in(each_blocks[i]);
+    			}
+
+    			current = true;
+    		},
+    		o(local) {
+    			each_blocks = each_blocks.filter(Boolean);
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				transition_out(each_blocks[i]);
+    			}
+
+    			current = false;
+    		},
+    		d(detaching) {
+    			if (detaching) detach(div3);
+    			destroy_each(each_blocks, detaching);
+    			dispose();
+    		}
+    	};
+    }
+
+    function instance$3($$self, $$props, $$invalidate) {
+    	let { title = "" } = $$props;
+    	let { layers = [] } = $$props;
+    	const dispatch = createEventDispatcher();
+
+    	function onChangeVisible({ detail }) {
+    		dispatch("change:visible", { ...detail, service: "WMS" });
+    	}
+
+    	const click_handler = () => dispatch("close");
+
+    	$$self.$set = $$props => {
+    		if ("title" in $$props) $$invalidate(0, title = $$props.title);
+    		if ("layers" in $$props) $$invalidate(1, layers = $$props.layers);
+    	};
+
+    	return [title, layers, dispatch, onChangeVisible, click_handler];
+    }
+
+    class WMS extends SvelteComponent {
+    	constructor(options) {
+    		super();
+    		init(this, options, instance$3, create_fragment$3, safe_not_equal, { title: 0, layers: 1 });
+    	}
+    }
+
+    /* src\Dialog.svelte generated by Svelte v3.18.1 */
+
+    function create_fragment$4(ctx) {
+    	let div2;
+    	let div0;
+    	let i;
+    	let t0;
+    	let t1;
+    	let t2;
+    	let div1;
+    	let input;
+    	let dispose;
+
+    	return {
+    		c() {
+    			div2 = element("div");
+    			div0 = element("div");
+    			i = element("i");
+    			t0 = space();
+    			t1 = text(/*title*/ ctx[0]);
+    			t2 = space();
+    			div1 = element("div");
+    			input = element("input");
+    			attr(i, "class", "icon close");
+    			attr(div0, "class", "header");
+    			attr(input, "type", "text");
+    			attr(div1, "class", "content");
+    			attr(div2, "class", "scanex-svc-view-dialog");
+    		},
+    		m(target, anchor) {
+    			insert(target, div2, anchor);
+    			append(div2, div0);
+    			append(div0, i);
+    			append(div0, t0);
+    			append(div0, t1);
+    			append(div2, t2);
+    			append(div2, div1);
+    			append(div1, input);
+    			set_input_value(input, /*value*/ ctx[2]);
+    			/*div2_binding*/ ctx[9](div2);
+
+    			dispose = [
+    				listen(i, "click", stop_propagation(/*click_handler*/ ctx[7])),
+    				listen(input, "keydown", stop_propagation(/*keydown*/ ctx[4])),
+    				listen(input, "input", /*input_input_handler*/ ctx[8])
+    			];
+    		},
+    		p(ctx, [dirty]) {
+    			if (dirty & /*title*/ 1) set_data(t1, /*title*/ ctx[0]);
+
+    			if (dirty & /*value*/ 4 && input.value !== /*value*/ ctx[2]) {
+    				set_input_value(input, /*value*/ ctx[2]);
+    			}
+    		},
+    		i: noop,
+    		o: noop,
+    		d(detaching) {
+    			if (detaching) detach(div2);
+    			/*div2_binding*/ ctx[9](null);
+    			run_all(dispose);
+    		}
+    	};
+    }
+
+    function instance$4($$self, $$props, $$invalidate) {
+    	const dispatch = createEventDispatcher();
+    	let container;
+    	let { title = "" } = $$props;
+    	let { top = 0 } = $$props;
+    	let { left = 0 } = $$props;
+    	let value = "";
+
+    	function keydown(e) {
+    		if (e.keyCode === 13) {
+    			dispatch("ok", value);
+    		}
+    	}
+
+    	onMount(() => {
+    		$$invalidate(1, container.style.top = `${top}px`, container);
+    		$$invalidate(1, container.style.left = `${left}px`, container);
+    	});
+
+    	const click_handler = () => dispatch("close");
+
+    	function input_input_handler() {
+    		value = this.value;
+    		$$invalidate(2, value);
+    	}
+
+    	function div2_binding($$value) {
+    		binding_callbacks[$$value ? "unshift" : "push"](() => {
+    			$$invalidate(1, container = $$value);
+    		});
+    	}
+
+    	$$self.$set = $$props => {
+    		if ("title" in $$props) $$invalidate(0, title = $$props.title);
+    		if ("top" in $$props) $$invalidate(5, top = $$props.top);
+    		if ("left" in $$props) $$invalidate(6, left = $$props.left);
+    	};
+
+    	return [
+    		title,
+    		container,
+    		value,
+    		dispatch,
+    		keydown,
+    		top,
+    		left,
+    		click_handler,
+    		input_input_handler,
+    		div2_binding
+    	];
+    }
+
+    class Dialog extends SvelteComponent {
+    	constructor(options) {
+    		super();
+    		init(this, options, instance$4, create_fragment$4, safe_not_equal, { title: 0, top: 5, left: 6 });
+    	}
+    }
+
+    var _typeof$1 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+      return typeof obj;
+    } : function (obj) {
+      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+    };
+
+    var classCallCheck = function (instance, Constructor) {
+      if (!(instance instanceof Constructor)) {
+        throw new TypeError("Cannot call a class as a function");
+      }
+    };
+
+    var createClass = function () {
+      function defineProperties(target, props) {
+        for (var i = 0; i < props.length; i++) {
+          var descriptor = props[i];
+          descriptor.enumerable = descriptor.enumerable || false;
+          descriptor.configurable = true;
+          if ("value" in descriptor) descriptor.writable = true;
+          Object.defineProperty(target, descriptor.key, descriptor);
+        }
+      }
+
+      return function (Constructor, protoProps, staticProps) {
+        if (protoProps) defineProperties(Constructor.prototype, protoProps);
+        if (staticProps) defineProperties(Constructor, staticProps);
+        return Constructor;
+      };
+    }();
+
+    var copy = function copy(source) {
+        switch (typeof source === 'undefined' ? 'undefined' : _typeof$1(source)) {
+            case 'number':
+            case 'string':
+            case 'function':
+            default:
+                return source;
+            case 'object':
+                if (source === null) {
+                    return null;
+                } else if (Array.isArray(source)) {
+                    return source.map(function (item) {
+                        return copy(item);
+                    });
+                } else if (source instanceof Date) {
+                    return source;
+                } else {
+                    return Object.keys(source).reduce(function (a, k) {
+                        a[k] = copy(source[k]);
+                        return a;
+                    }, {});
+                }
+        }
+    };
+
+    var extend = function extend(target, source) {
+        if (target === source) {
+            return target;
+        } else {
+            return Object.keys(source).reduce(function (a, k) {
+                var value = source[k];
+                if (_typeof$1(a[k]) === 'object' && k in a) {
+                    a[k] = extend(a[k], value);
+                } else {
+                    a[k] = copy(value);
+                }
+                return a;
+            }, copy(target));
+        }
+    };
+
+    var DEFAULT_LANGUAGE$1 = 'rus';
+
+    var Translations = function () {
+        function Translations() {
+            classCallCheck(this, Translations);
+
+            this._hash = {};
+        }
+
+        createClass(Translations, [{
+            key: 'setLanguage',
+            value: function setLanguage(lang) {
+                this._language = lang;
+            }
+        }, {
+            key: 'getLanguage',
+            value: function getLanguage() {
+                return window.language || this._language || DEFAULT_LANGUAGE$1;
+            }
+        }, {
+            key: 'addText',
+            value: function addText(lang, tran) {
+                this._hash[lang] = extend(this._hash[lang] || {}, tran);
+                return this;
+            }
+        }, {
+            key: 'getText',
+            value: function getText(key) {
+                if (key && typeof key === 'string') {
+                    var locale = this._hash[this.getLanguage()];
+                    if (locale) {
+                        return key.split('.').reduce(function (a, k) {
+                            return a[k];
+                        }, locale);
+                    }
+                }
+                return null;
+            }
+        }]);
+        return Translations;
+    }();
+
+    window.Scanex = window.Scanex || {};
+    window.Scanex.Translations = window.Scanex.Translations || {};
+    window.Scanex.translations = window.Scanex.translations || new Translations();
+
+    var index = window.Scanex.translations;
+
+    var scanexTranslations_cjs = index;
+
+    var serviceProxy = "//maps.kosmosnimki.ru/proxy";
+
+    const parse_node = node => {
+      const {
+        nodeName,
+        localName
+      } = node;
+      let r = {
+        name: nodeName,
+        localName
+      };
+      const attributes = {};
+
+      for (const a of node.attributes) {
+        attributes[a.name] = a.value;
+      }
+
+      if (Object.keys(attributes).length) {
+        r.attributes = attributes;
+      }
+
+      const children = [];
+
+      for (const n of node.children) {
+        children.push(parse_node(n));
+      }
+
+      if (children.length) {
+        r.children = children;
+      } else if (node.textContent) {
+        r.value = node.textContent;
+      }
+
+      return r;
+    };
+
+    const parse = xml => {
+      const [root] = xml.children;
+      return parse_node(root);
+    };
+
+    const send = url => new Promise((resolve, reject) => {
+      try {
+        const xhr = new XMLHttpRequest();
+        xhr.addEventListener('load', () => {
+          if (xhr.status === 200) {
+            resolve(parse(xhr.responseXML));
+          } else {
+            reject(xhr);
+          }
+        });
+        xhr.addEventListener('error', e => {
+          reject(e);
+        });
+        xhr.open('GET', `${serviceProxy}?${encodeURIComponent(url)}`);
+        xhr.send();
+      } catch (e) {
+        reject(e);
+      }
+    });
+
+    function parseLinearRing(linearRing) {
+      const {
+        children
+      } = linearRing;
+      return children.reduce((a, e) => {
+        switch (e.name) {
+          case 'gml:coordinates':
+            a = a.concat(parseCoordinates(e));
+            break;
+        }
+
+        return a;
+      }, []);
+    }
+
+    function parseBoundary(outerBoundary) {
+      const {
+        children
+      } = outerBoundary;
+      return children.reduce((a, e) => {
+        switch (e.name) {
+          case 'gml:LinearRing':
+            a = a.concat(parseLinearRing(e));
+            break;
+        }
+
+        return a;
+      }, []);
+    }
+
+    function parsePolygon(polygon) {
+      const {
+        children
+      } = polygon;
+      const coordinates = children.reduce((a, e) => {
+        switch (e.name) {
+          case 'gml:outerBoundaryIs':
+            a.push(parseBoundary(e));
+            break;
+
+          case 'gml:innerBoundaryIs':
+            a.push(parseBoundary(e));
+            break;
+        }
+
+        return a;
+      }, []);
+      return {
+        type: 'Polygon',
+        coordinates
+      };
+    }
+
+    function parsePolygonMember(polygon) {
+      const {
+        children
+      } = polygon;
+      return children.reduce((a, e) => {
+        switch (e.name) {
+          case 'gml:Polygon':
+            a.push(parsePolygon(e).coordinates);
+            break;
+        }
+
+        return a;
+      }, []);
+    }
+
+    function parseMultiPolygon(multiPolygon) {
+      const {
+        children
+      } = multiPolygon;
+      const coordinates = children.reduce((a, e) => {
+        switch (e.name) {
+          case 'gml:polygonMember':
+            a.push(parsePolygonMember(e));
+            break;
+        }
+
+        return a;
+      }, []);
+      return {
+        type: 'MultiPolygon',
+        coordinates
+      };
+    }
+
+    function parseGeometry(geometry) {
+      const {
+        children
+      } = geometry;
+      return children.reduce((a, e) => {
+        switch (e.name) {
+          case 'gml:Polygon':
+            a = parsePolygon(e);
+            break;
+
+          case 'gml:MultiPolygon':
+            a = parseMultiPolygon(e);
+            break;
+        }
+
+        return a;
+      }, {});
+    }
+
+    const parseCoordinates = coordinates => coordinates.value.split(/\s+/g).filter(e => e).map(e => e.split(',').map(v => parseFloat(v)));
+
+    function parseBox(box) {
+      const {
+        children
+      } = box;
+      return children.reduce((a, e) => {
+        switch (e.name) {
+          case 'gml:coordinates':
+            return parseCoordinates(e).reduce((b, p) => b.concat(p), []);
+
+          default:
+            return a;
+        }
+      }, []);
+    }
+
+    function parseBoundedBy(boundedBy) {
+      const {
+        children
+      } = boundedBy;
+      return children.reduce((a, e) => {
+        switch (e.name) {
+          case 'gml:Box':
+            return parseBox(e);
+
+          default:
+            return a;
+        }
+      }, []);
+    }
+
+    function parseFeature(feature) {
+      const {
+        name,
+        children
+      } = feature.children[0];
+      return children.reduce((a, e) => {
+        switch (e.name) {
+          case 'gml:boundedBy':
+            a.bbox = parseBoundedBy(e);
+            break;
+
+          case 'ms:msGeometry':
+            a.geometry = parseGeometry(e);
+            break;
+
+          case 'ms:id':
+          case 'ms:layer':
+          case 'ms:border_color':
+            a.properties[e.name] = e.value;
+            break;
+        }
+
+        return a;
+      }, {
+        type: 'Feature',
+        properties: {
+          name
+        }
+      });
+    }
+
+    /* src\View.svelte generated by Svelte v3.18.1 */
+
+    function create_fragment$5(ctx) {
+    	let div2;
+    	let div0;
+    	let button0;
+    	let t1;
+    	let button1;
+    	let t3;
+    	let div1;
+    	let dispose;
+
+    	return {
+    		c() {
+    			div2 = element("div");
+    			div0 = element("div");
+    			button0 = element("button");
+    			button0.textContent = "WFS";
+    			t1 = space();
+    			button1 = element("button");
+    			button1.textContent = "WMS";
+    			t3 = space();
+    			div1 = element("div");
+    			attr(div0, "class", "header");
+    			attr(div1, "class", "links");
+    			attr(div2, "class", "scanex-svc-view");
+    		},
+    		m(target, anchor) {
+    			insert(target, div2, anchor);
+    			append(div2, div0);
+    			append(div0, button0);
+    			append(div0, t1);
+    			append(div0, button1);
+    			/*div0_binding*/ ctx[15](div0);
+    			append(div2, t3);
+    			append(div2, div1);
+    			/*div1_binding*/ ctx[16](div1);
+
+    			dispose = [
+    				listen(button0, "click", stop_propagation(/*getwfs*/ ctx[2])),
+    				listen(button1, "click", stop_propagation(/*getwms*/ ctx[3]))
+    			];
+    		},
+    		p: noop,
+    		i: noop,
+    		o: noop,
+    		d(detaching) {
+    			if (detaching) detach(div2);
+    			/*div0_binding*/ ctx[15](null);
+    			/*div1_binding*/ ctx[16](null);
+    			run_all(dispose);
+    		}
+    	};
+    }
+
+    function instance$5($$self, $$props, $$invalidate) {
+    	const translate = scanexTranslations_cjs.getText.bind(scanexTranslations_cjs);
+    	const dispatch = createEventDispatcher();
+
+    	scanexTranslations_cjs.addText("eng", {
+    		link: { wfs: "Add WFS link", wms: "Add WMS link" }
+    	});
+
+    	scanexTranslations_cjs.addText("rus", {
+    		link: {
+    			wfs: "Добавить ссылку на WFS-сервис",
+    			wms: "Добавить ссылку на WMS-сервис"
+    		}
+    	});
+
+    	let linksContainer;
+    	let links = {};
+    	let { map } = $$props;
+
+    	function closeLink(url) {
+    		const link = links[url];
+
+    		if (link) {
+    			Object.keys(link).forEach(k => {
+    				const { layers } = link[k];
+
+    				if (Array.isArray(layers) && layers.length) {
+    					layers.forEach(layer => layer.remove());
+    				}
+    			});
+    		}
+    	}
+
+    	function drawFeature(feature) {
+    		try {
+    			const { geometry } = parseFeature(feature);
+    			const layer = L$1.geoJSON(geometry);
+    			layer.addTo(map);
+    			return layer;
+    		} catch(e) {
+    			console.log(e);
+    			return null;
+    		}
+    	}
+
+    	function drawFeatures(data) {
+    		if (data.name === "wfs:FeatureCollection") {
+    			return data.children.filter(({ name }) => name === "gml:featureMember").map(drawFeature).filter(e => e);
+    		} else {
+    			return [];
+    		}
+    	}
+
+    	async function getFeature(name, service, visible, url) {
+    		if (map) {
+    			const link = links[url];
+
+    			if (visible) {
+    				if (link && link[name]) {
+    					const { data, layers } = link[name];
+
+    					if (Array.isArray(layers) && layers.length) {
+    						layers.forEach(layer => layer.addTo(map));
+    					}
+    				} else {
+    					const data = await send(`${url}?request=GetFeature&service=${service}&version=1.0.0&typeName=ms:${name}`);
+    					const layers = drawFeatures(data);
+    					links[url] = links[url] || {};
+    					links[url][name] = { data, layers };
+    				}
+    			} else if (link && link[name]) {
+    				const { data, layers } = link[name];
+
+    				if (Array.isArray(layers) && layers.length) {
+    					layers.forEach(layer => layer.remove());
+    				}
+    			}
+    		}
+    	}
+
+    	async function addwfs(value) {
+    		const url = new URL(value);
+
+    		if (!url.searchParams.has("service")) {
+    			url.searchParams.append("service", "WFS");
+    		}
+
+    		if (!url.searchParams.has("request")) {
+    			url.searchParams.append("request", "GetCapabilities");
+    		}
+
+    		if (!url.searchParams.has("version")) {
+    			url.searchParams.append("version", "1.3.0");
+    		}
+
+    		const data = await send(url.toString());
+    		const { title, features } = toFeatures(data);
+
+    		const lnk = new WFS({
+    				target: linksContainer,
+    				props: { features, title }
+    			});
+
+    		lnk.$on("close", () => {
+    			lnk.$destroy();
+    			closeLink(value);
+    		});
+
+    		lnk.$on("change:visible", async ({ detail }) => {
+    			const { name, service, visible } = detail;
+    			await getFeature(name, service, visible, value);
+    		});
+    	}
+
+    	async function addwms(value) {
+    		const url = new URL(value);
+
+    		if (!url.searchParams.has("service")) {
+    			url.searchParams.append("service", "WMS");
+    		}
+
+    		if (!url.searchParams.has("request")) {
+    			url.searchParams.append("request", "GetCapabilities");
+    		}
+
+    		if (!url.searchParams.has("version")) {
+    			url.searchParams.append("version", "1.3.0");
+    		}
+
+    		const data = await send(url.toString());
+    		const { title, layers } = toLayers(data);
+
+    		const lnk = new WMS({
+    				target: linksContainer,
+    				props: { layers, title }
+    			});
+
+    		lnk.$on("close", () => {
+    			lnk.$destroy();
+    			closeLink(value);
+    		});
+
+    		lnk.$on("change:visible", async ({ detail }) => {
+    			const { name, service, visible } = detail;
+    			await getFeature(name, service, visible, value);
+    		});
+    	}
+
+    	let header;
+    	let dlg;
+
+    	function getwfs() {
+    		if (dlg) {
+    			dlg.$destroy();
+    		}
+
+    		const { top, left } = header.getBoundingClientRect();
+
+    		dlg = new Dialog({
+    				target: document.body,
+    				props: { title: translate("link.wfs"), top, left }
+    			});
+
+    		dlg.$on("close", () => dlg.$destroy());
+
+    		dlg.$on("ok", async ({ detail }) => {
+    			const value = detail;
+    			dlg.$destroy();
+
+    			if (value) {
+    				try {
+    					dispatch("link:start");
+    					await addwfs(value);
+    					dispatch("link:end");
+    				} catch(e) {
+    					dispatch("link:error");
+    				}
+    			}
+    		});
+    	}
+
+    	function getwms() {
+    		if (dlg) {
+    			dlg.$destroy();
+    		}
+
+    		const { top, left } = header.getBoundingClientRect();
+
+    		dlg = new Dialog({
+    				target: document.body,
+    				props: { title: translate("link.wms"), top, left }
+    			});
+
+    		dlg.$on("close", () => dlg.$destroy());
+
+    		dlg.$on("ok", async ({ detail }) => {
+    			const value = detail;
+    			dlg.$destroy();
+
+    			if (value) {
+    				try {
+    					dispatch("link:start");
+    					await addwms(value);
+    					dispatch("link:end");
+    				} catch(e) {
+    					dispatch("link:error");
+    				}
+    			}
+    		});
+    	}
+
+    	function div0_binding($$value) {
+    		binding_callbacks[$$value ? "unshift" : "push"](() => {
+    			$$invalidate(1, header = $$value);
+    		});
+    	}
+
+    	function div1_binding($$value) {
+    		binding_callbacks[$$value ? "unshift" : "push"](() => {
+    			$$invalidate(0, linksContainer = $$value);
+    		});
+    	}
+
+    	$$self.$set = $$props => {
+    		if ("map" in $$props) $$invalidate(4, map = $$props.map);
+    	};
+
+    	return [
+    		linksContainer,
+    		header,
+    		getwfs,
+    		getwms,
+    		map,
+    		links,
+    		dlg,
+    		translate,
+    		dispatch,
+    		closeLink,
+    		drawFeature,
+    		drawFeatures,
+    		getFeature,
+    		addwfs,
+    		addwms,
+    		div0_binding,
+    		div1_binding
+    	];
+    }
+
+    class View extends SvelteComponent {
+    	constructor(options) {
+    		super();
+    		init(this, options, instance$5, create_fragment$5, safe_not_equal, { map: 4 });
+    	}
+    }
+
+    var scanexWmfsView_cjs = View;
+
+    var menu = new leftMenu();
+    var view;
+
+    function remove() {
+      if (view) {
+        view.$destroy();
+      }
+    }
+
+    function addTo() {
+      menu.createWorkCanvas('wmfs', remove, {});
+      var el = document.querySelector('#left_wmfs').querySelector('.workCanvas');
+      view = new scanexWmfsView_cjs({
+        target: el,
+        props: {
+          map: nsGmx$1.leafletMap
+        }
+      });
+    }
 
     /**
         Возвращает массив ссылок в верхнее левое мета-меню в формате HeaderWidget из CommonComponents.
@@ -28137,9 +30393,10 @@
 
             if (field.isRequired) {
               fieldHeader.style.fontWeight = 'bold';
-            }
+            } // var tr = _tr([_td([fieldHeader]), td], [['css', 'height', '22px']]);
 
-            var tr = _tr([_td([fieldHeader]), td], [['css', 'height', '22px']]);
+
+            var tr = _tr([_td([fieldHeader]), td], [['dir', 'className', 'field-raw field-name-' + (field.name || field.title)]]);
 
             field.hide && $(tr).hide();
             trs.push(tr);
@@ -28201,7 +30458,7 @@
               $(dialogDiv).dialog('close');
             }
 
-            _this.initPromise.resolve();
+            _this.initPromise.resolve(canvas);
           });
         } else {
           for (var i = 0; i < prop.attributes.length; ++i) {
@@ -28219,7 +30476,7 @@
 
           drawAttrList(fieldsCollection);
 
-          _this.initPromise.resolve();
+          _this.initPromise.resolve(canvas);
         }
       };
       /** Promise для отслеживания момента полной инициализации диалога. Только после полной инициализации можно полноценно пользоваться методами get/set
@@ -29329,9 +31586,7 @@
                   var regLink = $(':ui-dialog .registration');
                   regLink.off("click").click(function () {
                     regLink.parents(':ui-dialog').dialog("close");
-                    regForm = showRegistrationForm(function () {
-                      window.location.reload();
-                    });
+                    regForm = showRegistrationForm();
                   });
                 };
               }
@@ -29788,7 +32043,7 @@
           reqParams.ZIndexField = attrs.ZIndexField || '';
 
           if (!name && stype === 'manual' && !(params && params.copy)) {
-            reqParams.UserBorder = attrs.UserBorder ? JSON.stringify(attrs.UserBorder) : null;
+            reqParams.UserBorder = attrs.UserBorder ? JSON.stringify(attrs.UserBorder) : '';
             reqParams.geometrytype = attrs.GeometryType;
             def = nsGmx$1.asyncTaskManager.sendGmxPostRequest(window.serverBase + "VectorLayer/CreateVectorLayer.ashx", reqParams);
           } else if (!name && params && params.copy) {
@@ -29823,6 +32078,19 @@
             copyParams.SourceType = attrs.SourceType;
             copyParams.Sql = sqlString;
             copyParams.srs = nsGmx$1.leafletMap.options.srs || '';
+            copyParams.Description = reqParams.Description;
+            copyParams.Copyright = reqParams.Copyright;
+            copyParams.Legend = reqParams.Legend;
+            copyParams.MetaProperties = reqParams.MetaProperties;
+            copyParams.ColX = reqParams.ColX;
+            copyParams.ColY = reqParams.ColY;
+            copyParams.EncodeSource = reqParams.EncodeSource;
+            copyParams.IsRasterCatalog = reqParams.IsRasterCatalog;
+            copyParams.TableCS = reqParams.TableCS;
+            copyParams.NameObject = reqParams.NameObject;
+            copyParams.TemporalLayer = reqParams.TemporalLayer;
+            copyParams.TemporalPeriodsSet = reqParams.TemporalPeriodsSet;
+            copyParams.TemporalColumnName = reqParams.TemporalColumnName;
             def = nsGmx$1.asyncTaskManager.sendGmxPostRequest(window.serverBase + "VectorLayer/Insert.ashx", copyParams);
           } else {
             //Если нет колонки с геометрией, то нужно передавать выбранные пользователем колонки
@@ -34398,7 +36666,7 @@
     });
 
     var formatTypes = ['geoTiff', 'geoTiffJpeg', 'jpeg', 'png'];
-    var view;
+    var view$1;
 
     var MapExportMenu = function MapExportMenu() {
       var canvas = _div(null, [['dir', 'className', 'mapExportConfigLeftMenu']]);
@@ -35283,7 +37551,7 @@
           return Math.min.apply(null, arr);
         }
       });
-      view = new ExportView();
+      view$1 = new ExportView();
 
       function getZoomLevels() {
         var zoomLevels = [],
@@ -35330,7 +37598,7 @@
           var alreadyLoaded = lm.createWorkCanvas('export', this.Unload);
 
           if (!alreadyLoaded) {
-            $(lm.workCanvas).append(view.el);
+            $(lm.workCanvas).append(view$1.el);
           }
         }
       };
@@ -35622,7 +37890,7 @@
       }
     });
 
-    var view$1;
+    var view$2;
 
     var IndexGridMenu = function IndexGridMenu() {
       var canvas = nsGmx$1.Utils._div(null, [['dir', 'className', 'indexGridConfigLeftMenu']]);
@@ -36412,7 +38680,7 @@
           return value;
         }
       });
-      view$1 = new IndexGridView();
+      view$2 = new IndexGridView();
 
       this.Load = function () {
         var lm = model.get('lm');
@@ -36421,7 +38689,7 @@
           var alreadyLoaded = lm.createWorkCanvas('mapIndexGrid', this.Unload);
 
           if (!alreadyLoaded) {
-            $(lm.workCanvas).append(view$1.el);
+            $(lm.workCanvas).append(view$2.el);
           }
         }
       };
@@ -37191,11 +39459,11 @@
       };
 
       gmxCore.addModule('UserGroupWidget', {
-        UserGroupListWidget: nsGmx$1.UserGroupListWidget // ,{
-        //     css: 'css/UserGroupWidget.css'
-        // }
-
-      });
+        UserGroupListWidget: nsGmx$1.UserGroupListWidget
+      } // ,{
+      //     css: 'css/UserGroupWidget.css'
+      // }
+      );
     })();
 
     L.Control.Dialog = L.Control.extend({
@@ -37824,6 +40092,10 @@
             id: 'wfs',
             title: _gtxt('Подключить WFS'),
             func: loadServerData.WFS.load
+          }, {
+            id: 'wmfs',
+            title: _gtxt('Подключить WFS/WMS'),
+            func: addTo
           }]
         });
 
@@ -37841,9 +40113,9 @@
           }, {
             id: 'DrawingObjects',
             title: _gtxt('Объекты'),
-            func: window.oDrawingObjectGeomixer.Load // {id:'searchView',     title: _gtxt('Результаты поиска'),    func: oSearchControl.Load}
-
-          }]
+            func: window.oDrawingObjectGeomixer.Load
+          } // {id:'searchView',     title: _gtxt('Результаты поиска'),    func: oSearchControl.Load}
+          ]
         });
 
         _menuUp.addItem({
@@ -39045,7 +41317,12 @@
           maxZoom: mapProps.MaxZoom || undefined,
           maxPopupCount: mapProps.maxPopupContent
         });
-        var lmap = new L.Map($('#flash')[0], mapOptions); // update layers zIndexes
+        var lmap = new L.Map($('#flash')[0], mapOptions);
+
+        if (window.syncParams) {
+          L.gmx.gmxMapManager.setSyncParams(window.syncParams);
+        } // update layers zIndexes
+
 
         var currentZoom = lmap.getZoom(),
             layerOrder = gmxMap.rawTree.properties.LayerOrder;
@@ -39563,7 +41840,7 @@
               icon: "s-tree",
               active: "sidebar-icon-active",
               inactive: "sidebar-icon-inactive",
-              hint: "Слои"
+              hint: _gtxt("Слои")
             })
           });
           leftMainContainer.innerHTML = '<div class="leftMenu">' + '<div class="mainmap-title">' + data.properties.title + '</div>' + '<div id="leftPanelHeader" class="leftPanelHeader"></div>' + '<div id="leftContent" class="leftContent">' + '<div id="leftContentInner" class="leftContentInner"></div>' + '</div>' + '<div id="leftPanelFooter" class="leftPanelFooter"></div>' + '</div>';
@@ -39899,5 +42176,5 @@
     });
     nsGmx$1.initGeoMixer();
 
-}());
+}(L));
 //# sourceMappingURL=main.js.map

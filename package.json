@@ -13,22 +13,22 @@
   "author": "marunov@scanex.ru",
   "license": "ISC",
   "devDependencies": {
-    "@babel/cli": "^7.4.4",
-    "@babel/core": "^7.4.5",
-    "@babel/preset-env": "^7.4.5",
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.8.4",
+    "@babel/preset-env": "^7.8.4",
     "babel-plugin-external-helpers": "^6.22.0",
     "npm-run-all": "^4.1.5",
-    "rollup": "^1.14.2",
-    "rollup-plugin-babel": "^4.3.2",
+    "rollup": "^1.31.0",
+    "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-commonjs": "^9.3.4",
     "rollup-plugin-copy": "^1.1.0",
     "rollup-plugin-css-porter": "^1.0.2",
     "rollup-plugin-eslint": "^5.1.0",
     "rollup-plugin-json": "^4.0.0",
     "rollup-plugin-node-resolve": "^4.2.4",
-    "rollup-plugin-svelte": "^5.0.3",
-    "serve": "^11.0.1",
-    "svelte": "^3.4.4",
+    "rollup-plugin-svelte": "^5.1.1",
+    "serve": "^11.3.0",
+    "svelte": "^3.18.2",
     "systemjs": "^0.19.47",
     "systemjs-plugin-babel": "0.0.25",
     "systemjs-plugin-css": "^0.1.37"
@@ -40,6 +40,7 @@
     "leaflet-ext-search": "git+https://github.com/ScanEx/Leaflet.ExtSearch.git",
     "scanex-event-target": "git+https://github.com/Scanex/EventTarget.git",
     "scanex-object-extensions": "git+https://github.com/Scanex/Object.Extensions.git",
-    "scanex-sidebar": "git+https://github.com/Scanex/Sidebar.git"
+    "scanex-sidebar": "git+https://github.com/Scanex/Sidebar.git",
+    "scanex-wmfs-view": "git+https://github.com/Scanex/WFSView.git"
   }
 }

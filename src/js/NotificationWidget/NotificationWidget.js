@@ -46,7 +46,7 @@ import './NotificationWidget.css';
                 .show().text(msg.text)
                 .removeClass(this._currentStatusClass)
                 .addClass(statusClass);
-                
+            this._currentStatusClass = statusClass;
             if (msg.timeout) {
                 this._messageTimer = setTimeout(function(){
                     this._messageTimer = null;

@@ -20,6 +20,8 @@ window.serverBase = 'https://maps.kosmosnimki.ru/'; // Адрес для вып�
 //var apikeyRequestHost = false;
 window.useInternalSearch = true;   // использовать поиск только по внутренним слоям
 
+window.syncParams = {};
+
 /**
  * baseMap - объект для задания базовых подложек вручную
  *
@@ -90,4 +92,6 @@ window.useInternalSearch = true;   // использовать поиск тол
 
 window.gmxPlugins = [
 	{ pluginName: 'gmxForest_dev3', file: 'http://maps3.kosmosnimki.ru/plugins/external/gmxForest_dev3/public/addGmxPlugin.js', module: 'gmxForest_dev3', mapPlugin: true, isPublic: true },
+	{ pluginName: 'Weather View', file: 'plugins/WeatherView/scanex-weather-view.js', module: 'WeatherView', mapPlugin: true, isPublic: true },
+        { pluginName: 'gmxPluginOuth2', file: 'plugins/external/GmxPluginOAuth2/addGmxPlugin.js', module: 'gmxPluginOuth2', mapPlugin: true, isPublic: true },
 ];

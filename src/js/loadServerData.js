@@ -750,7 +750,7 @@ queryServerData.prototype.drawGML = function(geometries, url, parentTreeCanvas, 
     for (var i = 0; i < geometries.length; i++)
     {
         //var elem = parent[geometries[i].geometry.type].addObject(geometries[i].geometry);
-        items[geometries[i].geometry.type].push([L.gmxUtil.geoJSONtoGeometry(geometries[i].geometry, true)]);
+        items[geometries[i].geometry.type].push([L.gmxUtil.geoJSONtoGeometry(geometries[i].geometry, false)]);
         //parent[geometries[i].geometry.type].addItems();
 
         /*if (objLength(geometries[i].feature) > 0)

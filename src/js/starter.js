@@ -52,6 +52,7 @@ import './SearchLogic/SearchLogic.js';
 import './SearchLogic/SearchProviders.js';
 import {drawingObjects} from './queryLoadShp.js';
 import {loadServerData} from './loadServerData.js';
+import addServiceTo from './wmfs.js';
 import './HeaderLinksControl.js';
 import './TransparencySliderWidget/TransparencySliderWidget.js';
 import 'leaflet-ext-search/dist/main.css';
@@ -366,7 +367,8 @@ nsGmx.initGeoMixer = function() {
                 { id: 'loadFile', title: _gtxt('Загрузить объекты'), func: drawingObjects.loadShp.load, delimiter: true },
                 { id: 'loadPhotos', title: _gtxt('Загрузить фотографии'), func: function() { PhotoLayerDialog() }, delimiter: true, disabled: !isMapEditor },
                 { id: 'wms', title: _gtxt('Подключить WMS'), func: loadServerData.WMS.load },
-                { id: 'wfs', title: _gtxt('Подключить WFS'), func: loadServerData.WFS.load }
+                { id: 'wfs', title: _gtxt('Подключить WFS'), func: loadServerData.WFS.load },
+                { id: 'wmfs', title: _gtxt('Подключить WFS/WMS'), func: addServiceTo },
             ]
         });
 
@@ -1589,7 +1591,9 @@ nsGmx.initGeoMixer = function() {
         });
 
         var lmap = new L.Map($('#flash')[0], mapOptions);
-
+        if(window.syncParams) {
+            L.gmx.gmxMapManager.setSyncParams(window.syncParams);
+        }        
 
         // update layers zIndexes
         var currentZoom = lmap.getZoom(),
@@ -2115,7 +2119,7 @@ nsGmx.initGeoMixer = function() {
                         icon: "s-tree",
                         active: "sidebar-icon-active",
                         inactive: "sidebar-icon-inactive",
-                        hint: "Слои"
+                        hint: _gtxt("Слои")
                     })
                 }
             );

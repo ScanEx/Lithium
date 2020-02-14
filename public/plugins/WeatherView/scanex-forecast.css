@@ -1,0 +1,193 @@
+@font-face {
+    font-family: 'robotoblack_italic';
+    src: url('Roboto-BlackItalic-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+@font-face {
+    font-family: 'robotoblack';    
+    src: url('Roboto-Black-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+@font-face {
+    font-family: 'roboto_condensedbold_italic';  
+    src: url('RobotoCondensed-BoldItalic-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'roboto_condensedbold';
+    src: url('RobotoCondensed-Bold-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'robotobold_italic';
+    src: url('Roboto-BoldItalic-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'robotobold';
+    src: url('Roboto-Bold-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'roboto_condenseditalic';
+    src: url('RobotoCondensed-Italic-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'roboto_condensedregular';
+    src: url('RobotoCondensed-Regular-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'robotoitalic';
+    src: url('Roboto-Italic-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'roboto_condensedlight_italic';
+    src: url('RobotoCondensed-LightItalic-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'roboto_condensedlight';
+    src: url('RobotoCondensed-Light-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'robotolight_italic';
+    src: url('Roboto-LightItalic-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'robotolight';
+    src: url('Roboto-Light-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'robotomedium_italic';
+    src: url('Roboto-MediumItalic-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'robotomedium';
+    src: url('Roboto-Medium-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'robotoregular';
+    src: url('Roboto-Regular-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'robotothin_italic';
+    src: url('Roboto-ThinItalic-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'robotothin';
+    src: url('Roboto-Thin-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+.weather-view {          
+    margin: 0px !important;
+    padding: 0px !important;
+    bottom: 20px !important;  
+    background-color: white;  
+}
+
+.weather-view-values {
+    overflow-x: auto; 
+}
+
+@media screen and (max-width: 1280px) {
+    .weather-view-values {        
+        max-width: 535px;        
+    }
+}
+
+.weather-view-marker {
+    display: inline-block;               
+    background-repeat: no-repeat;
+    background-color: transparent;
+}
+.weather-view-marker {
+    background-image: url('marker.png');
+    width: 11px;
+    height: 11px;
+    
+}
+.weather-view-popup {
+    font-family: 'Roboto', sans-serif;
+    font-size: 16px;
+    left: -95px !important;
+}
+.weather-view-popup .leaflet-popup-content-wrapper {
+    border-radius: 4px;
+    color: #738694;
+    padding: 0px;
+}
+.weather-view-popup .leaflet-popup-content-wrapper,
+.weather-view-popup .leaflet-popup-tip {    
+    background-color: #D8E1E8;    
+}
+.weather-view-popup .leaflet-popup-content {
+    margin: 0px;
+    width: auto;
+    line-height: initial;
+}
+.weather-view-popup .leaflet-popup-content > div {
+    width: 80px;
+    padding: 5px;
+}
+.weather-view-popup .leaflet-popup-tip-container {
+    display: none;
+}
+.weather-view-popup .leaflet-popup-content span:nth-child(2) {
+    margin-left: 5px;
+}
+.weather-view-popup .leaflet-popup-content span:last-child {
+    margin-left: 10px;
+}
+/* .weather-view-icon {
+    background-position: center;
+    background-repeat: no-repeat;    
+    background-image: url('meteoplugin-icon-1.svg');
+    display: inline-block;
+} */

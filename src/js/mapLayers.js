@@ -685,16 +685,18 @@ import './LayersManagerControl.js';
 
             if (styles.length === 1 && elem.name in nsGmx.gmxMap.layersByID) {
                 let layer = nsGmx.gmxMap.layersByID[elem.name];
-                layer.on('stylechange', function() {
-                    if (layer.getStyles().length === 1) {
-                        let style = L.gmxUtil.toServerStyle(layer.getStyles()[0].RenderStyle);
-                        let newIcon = _mapHelper.createStylesEditorIcon(
-                            [{ MinZoom: 1, MaxZoom: 21, RenderStyle: style }],
-                            elem.GeometryType ? elem.GeometryType.toLowerCase() : 'polygon', { addTitle: !layerManagerFlag }
-                        );
-                        $(iconSpan).empty().append(newIcon);
-                    }
-                });
+                if (!layer instanceof L.gmx.DummyLayer) {
+                    layer.on('stylechange', function() {
+                        if (layer.getStyles().length === 1) {
+                            let style = L.gmxUtil.toServerStyle(layer.getStyles()[0].RenderStyle);
+                            let newIcon = _mapHelper.createStylesEditorIcon(
+                                [{ MinZoom: 1, MaxZoom: 21, RenderStyle: style }],
+                                elem.GeometryType ? elem.GeometryType.toLowerCase() : 'polygon', { addTitle: !layerManagerFlag }
+                            );
+                            $(iconSpan).empty().append(newIcon);
+                        }
+                    });
+                }                
             }
 
             $(iconSpan).attr('styleType', $(icon).attr('styleType'));
